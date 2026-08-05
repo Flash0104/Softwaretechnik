@@ -217,6 +217,22 @@ def save_progress():
             except Exception as e:
                 pass
         return jsonify(MEM_PROGRESS)
+@app.route('/api/debug-files')
+def debug_files():
+    files_list = []
+    for root, dirs, files in os.walk('.'):
+        # Exclude node_modules or large hidden folders to prevent output bloat
+        if 'venv' in root or '.git' in root or '.vercel' in root:
+            continue
+        for file in files:
+            files_list.append(os.path.join(root, file))
+    return jsonify({
+        "cwd": os.getcwd(),
+        "app_dir": app_dir,
+        "__file__": __file__,
+        "files": files_list
+    })
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='127.0.0.1', port=5001)
