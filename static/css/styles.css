@@ -461,6 +461,20 @@ header {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+}
+
+.question-item .q-num {
+    font-weight: 700;
+    margin-right: 0.5rem;
+    opacity: 0.75;
+}
+
+.question-item .q-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .question-item:hover {
@@ -1351,12 +1365,36 @@ header {
 
     .question-item {
         flex: 0 0 auto;
-        width: 170px;
-        text-align: center;
-        padding: 0.7rem 1rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        width: 42px !important;
+        height: 42px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        padding: 0 !important;
+        font-size: 0.95rem !important;
+        font-weight: 700;
+        border: 1.5px solid var(--border-color) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .question-item.active {
+        border-color: var(--color-exam) !important;
+        background: rgba(59, 130, 246, 0.15) !important;
+    }
+    
+    .question-item.completed {
+        border-color: var(--color-success) !important;
+        background: rgba(16, 185, 129, 0.1) !important;
+    }
+
+    .question-item .q-title {
+        display: none !important;
+    }
+
+    .question-item .q-num {
+        margin-right: 0 !important;
+        opacity: 1 !important;
     }
 
     .workspace-panel {
@@ -1512,6 +1550,38 @@ header {
         min-height: 110px;
         padding: 0.8rem;
         font-size: 0.9rem;
+    }
+
+    .mode-selector {
+        gap: 0.4rem;
+        padding: 0.4rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .mode-star-btn {
+        padding: 0.3rem 0.5rem;
+        flex: 1;
+    }
+
+    .mode-star-btn i {
+        font-size: 1.1rem;
+    }
+
+    .mode-star-btn span {
+        font-size: 0.65rem;
+        text-align: center;
+        line-height: 1.2;
+    }
+
+    .self-assessment-buttons {
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .self-btn {
+        width: 100%;
+        text-align: center;
+        padding: 0.7rem;
     }
 
     .buttons-row {

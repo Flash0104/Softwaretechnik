@@ -357,7 +357,7 @@ function renderQuestionList() {
         let title = q.task_title || q.term || q.question;
         // Clean HTML tags
         title = title.replace(/<[^>]*>/g, '');
-        item.innerText = `${idx + 1}. ${title}`;
+        item.innerHTML = `<span class="q-num">${idx + 1}</span><span class="q-title">${title}</span>`;
         item.onclick = () => {
             state.currentQuestionIndex = idx;
             loadQuestion(idx);
