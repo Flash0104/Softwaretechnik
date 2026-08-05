@@ -24,6 +24,9 @@ if os.path.exists(env_path):
                         api_key = api_key[1:-1]
                     break
 
+if not api_key:
+    api_key = os.environ.get("GEMINI_API") or os.environ.get("GEMINI_API_KEY")
+
 # Unified data file path
 DATA_FILE = os.path.join(app_dir, "static/data/study_data.json")
 PROGRESS_FILE = os.path.join(app_dir, "static/data/progress.json")
@@ -189,24 +192,29 @@ def check_answer():
             "feedback": f"Error calling AI grading: {e}. Falling back to self-assessment."
         })
 
+# In-memory progress fallback for serverless deployments
+MEM_PROGRESS = {}
+
 @app.route('/api/progress', methods=['GET', 'POST'])
 def save_progress():
+    global MEM_PROGRESS
     if request.method == 'POST':
         progress_data = request.json or {}
         try:
             with open(PROGRESS_FILE, 'w', encoding='utf-8') as f:
                 json.dump(progress_data, f, indent=2)
-            return jsonify({"status": "success"})
         except Exception as e:
-            return jsonify({"error": str(e)}), 500
+            print(f"File writing progress skipped (normal on read-only serverless filesystems): {e}")
+        MEM_PROGRESS = progress_data
+        return jsonify({"status": "success"})
     else:
         if os.path.exists(PROGRESS_FILE):
             try:
                 with open(PROGRESS_FILE, 'r', encoding='utf-8') as f:
                     return jsonify(json.load(f))
             except Exception as e:
-                return jsonify({"error": str(e)}), 500
-        return jsonify({})
+                pass
+        return jsonify(MEM_PROGRESS)
 
 if __name__ == '__main__':
     app.run(debug=True, host='127.0.0.1', port=5001)
