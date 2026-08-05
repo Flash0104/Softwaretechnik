@@ -6,8 +6,10 @@ from flask import Flask, jsonify, render_template, request
 
 app = Flask(__name__)
 
-# Load env variables manually
-app_dir = os.path.dirname(os.path.abspath(__file__))
+if os.environ.get("VERCEL"):
+    app_dir = os.getcwd()
+else:
+    app_dir = os.path.dirname(os.path.abspath(__file__))
 api_key = None
 env_path = os.path.join(app_dir, ".env")
 if os.path.exists(env_path):
