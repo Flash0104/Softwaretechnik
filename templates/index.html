@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gamified SE Study Hub</title>
+    <!-- Outfit and Inter Fonts -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti for celebrations -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Mermaid.js for UML rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="logo-section">
+                <h1>SWT Study Hub</h1>
+                <p>Gamify your learning experience for Software Engineering</p>
+            </div>
+            <div class="header-controls">
+                <div class="api-status">
+                    <span id="ai-status-badge" class="badge">
+                        <i class="fa-solid fa-brain"></i> AI Grading: Loading...
+                    </span>
+                </div>
+                <button id="theme-toggle-btn" class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle theme">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- DASHBOARD VIEW -->
+        <div id="dashboard-view" class="dashboard-view fade-in">
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon score">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Total Score</h3>
+                        <p id="total-score">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon progress">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Overall Progress</h3>
+                        <p id="overall-progress">0%</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon streak">
+                        <i class="fa-solid fa-fire"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Study Streak</h3>
+                        <p id="study-streak">0 days</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon completed">
+                        <i class="fa-solid fa-check-double"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Solved Questions</h3>
+                        <p id="solved-count">0/0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Section -->
+            <div class="categories-section">
+                <h2 class="section-title">Select Study Deck</h2>
+                <div class="category-grid">
+                    <!-- Exam -->
+                    <div class="category-card exam" onclick="startDeck('exam')">
+                        <div class="card-header">
+                            <div class="card-icon"><i class="fa-solid fa-file-invoice"></i></div>
+                            <span class="badge">Exam</span>
+                        </div>
+                        <div class="card-body">
+                            <h2>Exam WS25-26</h2>
+                            <p>Study the real final exam. Challenge yourself with open questions, code coverage exercises, and multiple-choice questions.</p>
+                        </div>
+                        <div class="card-footer">
+                            <div class="progress-container">
+                                <div class="progress-text">
+                                    <span>Deck Progress</span>
+                                    <span id="exam-progress-pct">0%</span>
+                                </div>
+                                <div class="progress-bar-bg">
+                                    <div id="exam-progress-bar" class="progress-bar-fill"></div>
+                                </div>
+                            </div>
+                            <button class="action-btn">
+                                <i class="fa-solid fa-play"></i> Start Studying
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Exercises -->
+                    <div class="category-card exercises" onclick="startDeck('exercises')">
+                        <div class="card-header">
+                            <div class="card-icon"><i class="fa-solid fa-keyboard"></i></div>
+                            <span class="badge">Exercises</span>
+                        </div>
+                        <div class="card-body">
+                            <h2>Exercises 1-10</h2>
+                            <p>Solve sheets 1 to 10 covering software metrics, requirements elicitation, design patterns, testing criteria, and adaptive systems.</p>
+                        </div>
+                        <div class="card-footer">
+                            <div class="progress-container">
+                                <div class="progress-text">
+                                    <span>Deck Progress</span>
+                                    <span id="exercises-progress-pct">0%</span>
+                                </div>
+                                <div class="progress-bar-bg">
+                                    <div id="exercises-progress-bar" class="progress-bar-fill"></div>
+                                </div>
+                            </div>
+                            <button class="action-btn">
+                                <i class="fa-solid fa-play"></i> Start Studying
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Testates -->
+                    <div class="category-card testates" onclick="startDeck('testates')">
+                        <div class="card-header">
+                            <div class="card-icon"><i class="fa-solid fa-feather-pointed"></i></div>
+                            <span class="badge">Testates / Quizzes</span>
+                        </div>
+                        <div class="card-body">
+                            <h2>Testates & Pingo</h2>
+                            <p>Test your knowledge with Testat 1 questions, lecture Pingo quizzes, and scanned graded correction sheets for Testates 2 and 3.</p>
+                        </div>
+                        <div class="card-footer">
+                            <div class="progress-container">
+                                <div class="progress-text">
+                                    <span>Deck Progress</span>
+                                    <span id="testates-progress-pct">0%</span>
+                                </div>
+                                <div class="progress-bar-bg">
+                                    <div id="testates-progress-bar" class="progress-bar-fill"></div>
+                                </div>
+                            </div>
+                            <button class="action-btn">
+                                <i class="fa-solid fa-play"></i> Start Studying
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Slides -->
+                    <div class="category-card slides" onclick="startDeck('slides')">
+                        <div class="card-header">
+                            <div class="card-icon"><i class="fa-solid fa-book-open-reader"></i></div>
+                            <span class="badge">Slides</span>
+                        </div>
+                        <div class="card-body">
+                            <h2>Lecture Slides / Terms</h2>
+                            <p>Master definitions directly from the slides. Recite terms like verification, abstraction, high cohesion, and low coupling.</p>
+                        </div>
+                        <div class="card-footer">
+                            <div class="progress-container">
+                                <div class="progress-text">
+                                    <span>Deck Progress</span>
+                                    <span id="slides-progress-pct">0%</span>
+                                </div>
+                                <div class="progress-bar-bg">
+                                    <div id="slides-progress-bar" class="progress-bar-fill"></div>
+                                </div>
+                            </div>
+                            <button class="action-btn">
+                                <i class="fa-solid fa-play"></i> Start Studying
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Mock Exam -->
+                    <div class="category-card mock_exam" onclick="startDeck('mock_exam')">
+                        <div class="card-header">
+                            <div class="card-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                            <span class="badge">Mock Exam</span>
+                        </div>
+                        <div class="card-body">
+                            <h2>Mock Exam (Variant 2)</h2>
+                            <p>Challenge yourself with the complete 60-point mock exam. Includes 10 Multiple Choice, 7 Free Text, and 5 Application Tasks.</p>
+                        </div>
+                        <div class="card-footer">
+                            <div class="progress-container">
+                                <div class="progress-text">
+                                    <span>Deck Progress</span>
+                                    <span id="mock_exam-progress-pct">0%</span>
+                                </div>
+                                <div class="progress-bar-bg">
+                                    <div id="mock_exam-progress-bar" class="progress-bar-fill"></div>
+                                </div>
+                            </div>
+                            <button class="action-btn">
+                                <i class="fa-solid fa-play"></i> Start Studying
+                            </button>
+                        </div>
+                    </div>
+            </div>
+        </div>
+
+            <!-- Topic Mastery Dashboard -->
+            <div class="mastery-section">
+                <div class="mastery-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 class="section-title">Topic Mastery & Progress</h2>
+                    <button id="review-weak-btn" class="review-weak-btn" style="display: none;">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Review Weak Topics
+                    </button>
+                </div>
+                <div id="topic-mastery-container" class="mastery-grid">
+                    <!-- Dynamic rendering -->
+                </div>
+            </div>
+
+            <!-- Performance & History Section -->
+            <div class="history-section">
+                <div class="history-header">
+                    <h2 class="section-title">Attempt History & Performance</h2>
+                    <button class="clear-history-btn" onclick="clearHistory()">
+                        <i class="fa-solid fa-trash-can"></i> Clear History
+                    </button>
+                </div>
+                <div class="history-card-container">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Deck / Test Type</th>
+                                <th>Date & Time</th>
+                                <th>Assistance Level</th>
+                                <th>Questions Solved</th>
+                                <th>Score / Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body">
+                            <tr>
+                                <td colspan="5" class="empty-history">No attempts recorded yet. Start studying a deck above!</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- STUDY PLAYGROUND VIEW -->
+        <div id="study-view" class="study-layout fade-in">
+            <!-- Left Side: Nav List of Questions -->
+            <div class="sidebar-panel">
+                <div class="sidebar-header">
+                    <button class="back-btn" onclick="exitDeck()">
+                        <i class="fa-solid fa-chevron-left"></i> Exit Deck
+                    </button>
+                    <span id="deck-badge" class="badge">Exam</span>
+                </div>
+                <ul id="deck-question-list" class="question-list">
+                    <!-- Loaded dynamically -->
+                </ul>
+            </div>
+
+            <!-- Right Side: Splittable Active Workspace -->
+            <div id="workspace-panel" class="workspace-panel">
+                <!-- Visual / PDF Split Screen (Conditional) -->
+                <div id="visual-pane" class="visual-pane">
+                    <div class="pane-header">
+                        <span class="pane-title"><i class="fa-solid fa-image"></i> Reference Diagram / Sheet Page</span>
+                        <span id="image-page-label" class="badge">page_1.png</span>
+                    </div>
+                    <div class="visual-content">
+                        <img id="question-reference-image" src="" alt="Question reference diagram">
+                    </div>
+                </div>
+
+                <!-- UML Sandbox Pane (Collapsible) -->
+                <div id="uml-sandbox-pane" class="uml-sandbox-pane" style="display: none;">
+                    <div class="pane-header">
+                        <span class="pane-title"><i class="fa-solid fa-diagram-project"></i> UML Workbench</span>
+                        <div class="uml-actions">
+                            <button class="uml-btn" onclick="insertUmlTemplate('class')">Class</button>
+                            <button class="uml-btn" onclick="insertUmlTemplate('sequence')">Sequence</button>
+                            <button class="uml-btn" onclick="insertUmlTemplate('state')">State</button>
+                            <button class="uml-btn" onclick="insertUmlTemplate('er')">ERD</button>
+                        </div>
+                    </div>
+                    <div class="uml-content">
+                        <textarea id="uml-editor" class="uml-editor" placeholder="Write Mermaid UML code here..."></textarea>
+                        <div id="uml-preview" class="uml-preview"></div>
+                    </div>
+                </div>
+
+                <!-- Active Solving Pane -->
+                <div class="solving-pane">
+                    <!-- Study Mode Tabs (only visible for Slides category) -->
+                    <div id="study-mode-tabs" class="study-mode-tabs">
+                        <button id="tab-solve-btn" class="study-tab-btn active" onclick="switchStudyTab('solve')">
+                            <i class="fa-solid fa-pen-to-square"></i> Solving Playground
+                        </button>
+                        <button id="tab-flashcard-btn" class="study-tab-btn" onclick="switchStudyTab('flashcard')">
+                            <i class="fa-solid fa-rotate"></i> Interactive Flashcards
+                        </button>
+                    </div>
+
+                    <!-- Solving Mode Playground -->
+                    <div id="playground-solving-area">
+                        <!-- Stars Rating Selector (Mode Picker) -->
+                        <div class="mode-selector" id="playground-mode-selector">
+                            <button id="star-btn-1" class="mode-star-btn" onclick="setStarMode(1)">
+                                <i class="fa-solid fa-star"></i>
+                                <span>1 Star (Lookup)</span>
+                            </button>
+                            <button id="star-btn-2" class="mode-star-btn" onclick="setStarMode(2)">
+                                <div style="display: flex; gap: 2px;">
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                </div>
+                                <span>2 Stars (Hint)</span>
+                            </button>
+                            <button id="star-btn-3" class="mode-star-btn" onclick="setStarMode(3)">
+                                <div style="display: flex; gap: 2px;">
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                </div>
+                                <span>3 Stars (Solve)</span>
+                            </button>
+                        </div>
+
+                        <!-- Question Text -->
+                        <div class="question-header">
+                        <div class="question-meta">
+                            <span id="question-index-label">Question 1 of 10</span>
+                            <span id="question-points-label">Points: 2.0</span>
+                        </div>
+                        <div class="question-body">
+                            <h2 id="question-text-content">Loading question...</h2>
+                        </div>
+                    </div>
+
+                    <!-- Solving / Input Workspace -->
+                    <div id="solving-input-area">
+                        <!-- Multiple Choice Options (Loaded dynamically) -->
+                        <ul id="mc-options-container" class="options-list" style="display: none;"></ul>
+
+                        <!-- Free-text input -->
+                        <div id="text-input-container" class="answer-input-container" style="display: none;">
+                            <textarea id="user-answer-input" class="answer-textarea" placeholder="Type your detailed answer here in English..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Hint Display Panel -->
+                    <div id="hint-display" class="hint-panel">
+                        <h4><i class="fa-solid fa-lightbulb"></i> Study Hint:</h4>
+                        <p id="hint-text-content">Here is a hint to guide your formulation.</p>
+                    </div>
+
+                    <!-- Reference Solution Panel (1 star mode or post-submission) -->
+                    <div id="solution-display" class="solution-panel">
+                        <h4><i class="fa-solid fa-circle-check"></i> Reference Solution:</h4>
+                        <p id="solution-text-content">The standard textbook definition goes here.</p>
+                    </div>
+
+                    <!-- Feedback Display Panel (AI grading results) -->
+                    <div id="feedback-display" class="feedback-panel">
+                        <div class="feedback-header">
+                            <h4><i class="fa-solid fa-graduation-cap"></i> AI Grading Feedback:</h4>
+                            <span id="grading-score-badge" class="score-badge high">85% Correct</span>
+                        </div>
+                        <p id="feedback-text-content">Excellent answer, you covered the main points.</p>
+                    </div>
+
+                    <!-- Fallback Self-Assessment Rating Block -->
+                    <div id="self-assessment-display" class="self-assessment-block">
+                        <h4><i class="fa-solid fa-balance-scale"></i> Compare your answer & Grade yourself:</h4>
+                        <p>Evaluate your response against the Reference Solution above.</p>
+                        <div class="self-assessment-buttons">
+                            <button class="self-btn yes" onclick="gradeSelf(100)">
+                                <i class="fa-solid fa-circle-check"></i> Got it! (100%)
+                            </button>
+                            <button class="self-btn maybe" onclick="gradeSelf(50)">
+                                <i class="fa-solid fa-adjust"></i> Partially (50%)
+                            </button>
+                            <button class="self-btn no" onclick="gradeSelf(0)">
+                                <i class="fa-solid fa-circle-xmark"></i> Missed it (0%)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="buttons-row">
+                        <button id="toggle-uml-btn" class="btn btn-secondary" onclick="toggleUmlSandbox()" style="margin-right: auto;">
+                            <i class="fa-solid fa-diagram-project"></i> UML Workbench
+                        </button>
+                        <button id="show-hint-btn" class="btn btn-secondary" onclick="revealHint()" style="display: none;">
+                            <i class="fa-solid fa-lightbulb"></i> Reveal Hint
+                        </button>
+                        <button id="submit-answer-btn" class="btn btn-primary" onclick="submitAnswer()">
+                            <span id="submit-btn-text">Submit Answer</span>
+                            <div id="submit-btn-spinner" class="spinner"></div>
+                        </button>
+                        <button id="next-question-btn" class="btn btn-success" onclick="nextQuestion()" style="display: none;">
+                            Next Question <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    </div> <!-- end of playground-solving-area -->
+
+                    <!-- Interactive Flashcard Area -->
+                    <div id="flashcard-playground-area" class="flashcard-container">
+                        <div class="flashcard-inner" id="flashcard-card" onclick="flipFlashcard()">
+                            <!-- Front of Card -->
+                            <div class="flashcard-front">
+                                <span class="chapter-badge" id="flashcard-chapter">Chapter 1</span>
+                                <h2 id="flashcard-term">Loading Term...</h2>
+                                <p class="prompt-text"><i class="fa-solid fa-hand-pointer"></i> Click card to flip and reveal definition</p>
+                            </div>
+                            <!-- Back of Card -->
+                            <div class="flashcard-back">
+                                <h3 id="flashcard-back-term">Term</h3>
+                                <p id="flashcard-definition">Loading definition...</p>
+                                <div class="example-box" id="flashcard-example-box" style="display: none;">
+                                    <strong>Example:</strong> <span id="flashcard-example">Example explanation</span>
+                                </div>
+                                <p class="prompt-text" style="margin-top: 1.5rem;"><i class="fa-solid fa-arrow-rotate-left"></i> Click to flip back</p>
+                            </div>
+                        </div>
+                        <!-- Spaced Repetition Grading -->
+                        <div class="self-assessment-block" id="flashcard-grading-block" style="margin-top: 1.5rem; text-align: center; border: none; background: transparent; padding: 0; display: none;">
+                            <p style="margin-bottom: 0.8rem; font-size: 0.95rem; color: var(--text-secondary);">How well did you recall this concept?</p>
+                            <div class="self-assessment-buttons" style="justify-content: center; gap: 0.8rem;">
+                                <button class="self-btn no" onclick="rateFlashcard(0)">
+                                    <i class="fa-solid fa-circle-xmark"></i> Forgot (0%)
+                                </button>
+                                <button class="self-btn maybe" onclick="rateFlashcard(50)">
+                                    <i class="fa-solid fa-adjust"></i> Partially (50%)
+                                </button>
+                                <button class="self-btn yes" onclick="rateFlashcard(100)">
+                                    <i class="fa-solid fa-circle-check"></i> Mastered! (100%)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script imports -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

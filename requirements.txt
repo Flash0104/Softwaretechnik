@@ -1,0 +1,3 @@
+Flask>=3.0.0
+pypdf>=6.14.2
+pymupdf>=1.28.0

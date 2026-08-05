@@ -1,0 +1,63 @@
+{
+  "lastStudyDate": "Mon Aug 03 2026",
+  "score": 64.6,
+  "solved": {
+    "exam_1.1": 4,
+    "exam_1.2a": 1.8,
+    "exam_1.2b": 2,
+    "exam_1.3a": 1,
+    "exam_1.3b": 1,
+    "exam_1.3c": 1,
+    "exam_1.3d": 1,
+    "exam_1.4a": 2,
+    "exam_1.4c": 2,
+    "exam_2.1a": 1,
+    "exam_2.1b": 2,
+    "exam_2.1c": 2,
+    "exam_2.2": 4,
+    "exam_2.3a": 2,
+    "exam_2.3b": 3,
+    "exam_2.4a": 2,
+    "exam_2.4b": 1.5,
+    "exam_3.1": 4,
+    "exam_3.2": 3.4,
+    "exam_3.3a": 1,
+    "exam_3.3b": 1,
+    "exam_3.3c": 1,
+    "exam_3.3d": 1,
+    "exam_3.3e": 2,
+    "exam_3.4": 4,
+    "exam_3.5a": 2,
+    "exam_3.5b": 2,
+    "se_lecture_1_software_engineering": 2,
+    "se_lecture_1_software_quality": 2,
+    "se_lecture_1_correctness": 2,
+    "se_lecture_1_reliability": 1.9,
+    "se_lecture_1_robustness": 2
+  },
+  "streak": 3,
+  "history": [
+    {
+      "id": "attempt_1785783026525",
+      "category": "slides",
+      "timestamp": "2026-08-03T18:50:26.525Z",
+      "mode": 2,
+      "solvedCount": 1,
+      "totalCount": 143,
+      "score": 100,
+      "pointsEarned": 2,
+      "pointsMax": 2
+    },
+    {
+      "id": "attempt_1785696108897",
+      "category": "exam",
+      "timestamp": "2026-08-02T18:41:48.897Z",
+      "mode": 3,
+      "solvedCount": 3,
+      "totalCount": 8,
+      "score": 78,
+      "pointsEarned": 6.2,
+      "pointsMax": 8
+    }
+  ]
+}
