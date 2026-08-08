@@ -122,10 +122,11 @@ async function checkAiStatus() {
 // ============================================================
 
 // Load progress from Firestore, fall back to localStorage
+// Also migrates old localStorage data to Firestore on first sign-in.
 async function loadProgress() {
     const uid = getCurrentUid();
 
-    // 1. Try Firestore
+    // 1. Try Firestore first
     if (uid && typeof db !== 'undefined') {
         try {
             const snap = await db.collection('users').doc(uid).collection('data').doc('progress').get();
@@ -135,7 +136,26 @@ async function loadProgress() {
                     state.progress = data;
                     // Keep localStorage in sync for offline resilience
                     localStorage.setItem('swt_study_progress', JSON.stringify(state.progress));
+                    console.log('Progress loaded from Firestore.');
                     return;
+                }
+            }
+
+            // Firestore has no data yet — check if localStorage has pre-existing data to migrate
+            const local = localStorage.getItem('swt_study_progress');
+            if (local) {
+                try {
+                    const localData = JSON.parse(local);
+                    if (localData && localData.solved && Object.keys(localData.solved).length > 0) {
+                        state.progress = localData;
+                        // Upload to Firestore so it's persisted to this account
+                        await db.collection('users').doc(uid).collection('data').doc('progress')
+                            .set(localData);
+                        console.log('Migrated localStorage progress to Firestore ✅');
+                        return;
+                    }
+                } catch(e) {
+                    console.warn('localStorage migration failed:', e);
                 }
             }
         } catch (e) {
@@ -143,7 +163,7 @@ async function loadProgress() {
         }
     }
 
-    // 2. localStorage fallback
+    // 2. localStorage fallback (offline or Firestore error)
     const local = localStorage.getItem('swt_study_progress');
     if (local) {
         try { state.progress = JSON.parse(local); } catch(e) {}
@@ -720,12 +740,24 @@ function saveScore(score) {
     }
 }
 
-// Next Question
+// Next Question — fully resets UI state before loading
 function nextQuestion() {
+    // Explicitly reset all panels and buttons to clean state
+    // (prevents stale feedback/grading panels carrying over)
+    const ids = ['feedback-display','self-assessment-display','hint-display','solution-display'];
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+    const submitBtn = document.getElementById('submit-answer-btn');
+    const nextBtn   = document.getElementById('next-question-btn');
+    if (submitBtn) { submitBtn.style.display = 'block'; submitBtn.disabled = false; }
+    if (nextBtn)     nextBtn.style.display = 'none';
+
     if (state.currentQuestionIndex + 1 < state.questions.length) {
         state.currentQuestionIndex += 1;
         loadQuestion(state.currentQuestionIndex);
-        renderQuestionList(); // Refresh sidebar to show completed badges
+        renderQuestionList();
     } else {
         alert("Deck complete! Excellent job studying software systems engineering.");
         exitDeck();
