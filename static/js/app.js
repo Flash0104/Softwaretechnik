@@ -16,27 +16,30 @@ let state = {
     hasAiKey: false
 };
 
-// DOM Elements
+// DOM Elements (evaluated lazily after auth shows the container)
 const views = {
-    dashboard: document.getElementById('dashboard-view'),
-    study: document.getElementById('study-view')
+    get dashboard() { return document.getElementById('dashboard-view'); },
+    get study()     { return document.getElementById('study-view'); }
 };
 
-// Init application on load
-window.addEventListener('DOMContentLoaded', async () => {
+// ----- Entry point called by auth.js after Google sign-in -----
+async function onUserSignedIn(user) {
     initTheme();
     await loadProgress();
     await fetchQuestions();
     updateStats();
     checkAiStatus();
     renderHistory();
-    
+
     // Initialize Mermaid input listener
     const umlEditor = document.getElementById('uml-editor');
     if (umlEditor) {
         umlEditor.addEventListener('input', renderMermaid);
     }
-});
+}
+
+// Theme still initializes on DOMContentLoaded so the overlay looks right
+window.addEventListener('DOMContentLoaded', () => { initTheme(); });
 
 // Init Theme on load
 function initTheme() {
@@ -114,72 +117,106 @@ async function checkAiStatus() {
     }
 }
 
-// Load Progress from Server or localStorage
+// ============================================================
+//  PROGRESS — Firestore (with localStorage fallback)
+// ============================================================
+
+// Load progress from Firestore, fall back to localStorage
 async function loadProgress() {
-    try {
-        const res = await fetch('/api/progress');
-        if (res.ok) {
-            const data = await res.json();
-            if (data.solved) {
-                state.progress = data;
-                return;
+    const uid = getCurrentUid();
+
+    // 1. Try Firestore
+    if (uid && typeof db !== 'undefined') {
+        try {
+            const snap = await db.collection('users').doc(uid).collection('data').doc('progress').get();
+            if (snap.exists) {
+                const data = snap.data();
+                if (data && data.solved) {
+                    state.progress = data;
+                    // Keep localStorage in sync for offline resilience
+                    localStorage.setItem('swt_study_progress', JSON.stringify(state.progress));
+                    return;
+                }
             }
+        } catch (e) {
+            console.warn('Firestore progress load failed, falling back to localStorage:', e);
         }
-    } catch (e) {
-        console.warn("Failed to load progress from server, loading from localStorage.");
     }
-    
-    // LocalStorage Fallback
+
+    // 2. localStorage fallback
     const local = localStorage.getItem('swt_study_progress');
     if (local) {
-        state.progress = JSON.parse(local);
+        try { state.progress = JSON.parse(local); } catch(e) {}
     }
 }
 
-// Save Progress to Server & localStorage
+// Save progress to Firestore + localStorage
 async function saveProgress() {
-    // Check Streak
+    // Update streak
     const today = new Date().toDateString();
     if (state.progress.lastStudyDate !== today) {
         if (state.progress.lastStudyDate) {
             const lastDate = new Date(state.progress.lastStudyDate);
-            const diffTime = Math.abs(new Date(today) - lastDate);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            if (diffDays === 1) {
-                state.progress.streak += 1;
-            } else if (diffDays > 1) {
-                state.progress.streak = 1;
-            }
+            const diffDays = Math.ceil(Math.abs(new Date(today) - lastDate) / (1000 * 60 * 60 * 24));
+            state.progress.streak = diffDays === 1 ? (state.progress.streak || 0) + 1 : 1;
         } else {
             state.progress.streak = 1;
         }
         state.progress.lastStudyDate = today;
     }
 
+    // Always write to localStorage immediately
     localStorage.setItem('swt_study_progress', JSON.stringify(state.progress));
-    
-    try {
-        await fetch('/api/progress', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(state.progress)
-        });
-    } catch (e) {
-        console.error("Failed to sync progress with server", e);
+
+    // Write to Firestore in background (non-blocking)
+    const uid = getCurrentUid();
+    if (uid && typeof db !== 'undefined') {
+        db.collection('users').doc(uid).collection('data').doc('progress')
+            .set(state.progress)
+            .catch(e => console.warn('Firestore progress save failed:', e));
     }
+
     updateStats();
 }
 
-// Fetch all questions compiled by PDF extractor
+// ============================================================
+//  QUESTIONS — try Firestore, fall back to /api/questions
+// ============================================================
 async function fetchQuestions() {
+    // 1. Try Firestore (populated by migration script)
+    if (typeof db !== 'undefined') {
+        try {
+            const categories = ['exam', 'exercises', 'testates', 'slides', 'mock_exam'];
+            const results = await Promise.all(
+                categories.map(cat =>
+                    db.collection('questions').doc(cat).collection('items').get()
+                      .then(snap => ({ cat, docs: snap.docs.map(d => d.data()) }))
+                      .catch(() => ({ cat, docs: [] }))
+                )
+            );
+            const decks = {};
+            results.forEach(({ cat, docs }) => { if (docs.length > 0) decks[cat] = docs; });
+
+            // If Firestore returned at least one populated category, use it
+            if (Object.values(decks).some(d => d.length > 0)) {
+                state.allDecks = decks;
+                console.log('Questions loaded from Firestore:', Object.keys(decks).map(k => `${k}:${decks[k].length}`));
+                return;
+            }
+        } catch (e) {
+            console.warn('Firestore questions load failed, falling back to /api/questions:', e);
+        }
+    }
+
+    // 2. Fallback: Flask /api/questions (reads study_data.json)
     try {
         const res = await fetch('/api/questions');
         if (res.ok) {
             state.allDecks = await res.json();
-            console.log("Loaded Decks:", state.allDecks);
+            console.log('Questions loaded from API fallback:', state.allDecks);
         }
     } catch (e) {
-        console.error("Error fetching study database", e);
+        console.error('Error fetching study database from API:', e);
     }
 }
 

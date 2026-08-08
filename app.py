@@ -31,7 +31,7 @@ if not api_key:
 
 # Unified data file path
 DATA_FILE = os.path.join(app_dir, "static/data/study_data.json")
-PROGRESS_FILE = os.path.join(app_dir, "static/data/progress.json")
+
 
 def load_data():
     if os.path.exists(DATA_FILE):
@@ -194,29 +194,7 @@ def check_answer():
             "feedback": f"Error calling AI grading: {e}. Falling back to self-assessment."
         })
 
-# In-memory progress fallback for serverless deployments
-MEM_PROGRESS = {}
 
-@app.route('/api/progress', methods=['GET', 'POST'])
-def save_progress():
-    global MEM_PROGRESS
-    if request.method == 'POST':
-        progress_data = request.json or {}
-        try:
-            with open(PROGRESS_FILE, 'w', encoding='utf-8') as f:
-                json.dump(progress_data, f, indent=2)
-        except Exception as e:
-            print(f"File writing progress skipped (normal on read-only serverless filesystems): {e}")
-        MEM_PROGRESS = progress_data
-        return jsonify({"status": "success"})
-    else:
-        if os.path.exists(PROGRESS_FILE):
-            try:
-                with open(PROGRESS_FILE, 'r', encoding='utf-8') as f:
-                    return jsonify(json.load(f))
-            except Exception as e:
-                pass
-        return jsonify(MEM_PROGRESS)
 @app.route('/api/debug-files')
 def debug_files():
     files_list = []

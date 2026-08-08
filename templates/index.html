@@ -12,10 +12,33 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <!-- Mermaid.js for UML rendering -->
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <!-- Firebase SDK (compat v9 — no build step required) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
-    <div class="container">
+    <!-- ============================================================
+         AUTH OVERLAY — shown until user signs in with Google
+    ============================================================ -->
+    <div id="auth-overlay" class="auth-overlay">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <h1 class="auth-title">SWT Study Hub</h1>
+            <p class="auth-subtitle">Sign in to track your progress, sync across devices, and unlock AI-graded feedback.</p>
+            <button id="google-signin-btn" class="google-signin-btn" onclick="signInWithGoogle()">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="20" height="20">
+                Sign in with Google
+            </button>
+            <p id="auth-error-msg" class="auth-error" style="display:none;"></p>
+            <p class="auth-footer">Your data is stored securely in Firebase. Only you can access your progress.</p>
+        </div>
+    </div>
+
+    <div class="container" style="display:none;">
         <!-- Header -->
         <header>
             <div class="logo-section">
@@ -27,6 +50,14 @@
                     <span id="ai-status-badge" class="badge">
                         <i class="fa-solid fa-brain"></i> AI Grading: Loading...
                     </span>
+                </div>
+                <!-- User Info Section (shown after sign-in) -->
+                <div id="user-info-section" class="user-info-section" style="display:none;">
+                    <img id="user-avatar-img" class="user-avatar" src="" alt="User avatar">
+                    <span id="user-display-name" class="user-display-name"></span>
+                    <button class="signout-btn" onclick="signOut()" title="Sign out">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
                 </div>
                 <button id="theme-toggle-btn" class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle theme">
                     <i class="fa-solid fa-moon"></i>
@@ -454,7 +485,9 @@
         </div>
     </div>
 
-    <!-- Script imports -->
+    <!-- Script imports: Firebase first, then auth, then app logic -->
+    <script src="{{ url_for('static', filename='js/firebase-config.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>
