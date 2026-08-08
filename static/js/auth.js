@@ -61,7 +61,7 @@ function showApp(user) {
     const overlay = document.getElementById('auth-overlay');
     const appContainer = document.querySelector('.container');
     if (overlay)       overlay.style.display = 'none';
-    if (appContainer)  appContainer.style.display = 'flex';
+    if (appContainer)  appContainer.style.display = 'block'; // was 'flex' — that broke layout
 
     // Populate user info in header
     const avatarImg  = document.getElementById('user-avatar-img');
@@ -96,6 +96,7 @@ function showLoginOverlay() {
     const userInfo = document.getElementById('user-info-section');
     if (userInfo) userInfo.style.display = 'none';
 }
+
 
 // ----- Helpers for app.js -----
 function getCurrentUser() {
