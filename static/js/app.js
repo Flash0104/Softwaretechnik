@@ -7,11 +7,19 @@ let state = {
     currentQuestionIndex: 0,
     starMode: 3, // 1: Lookup, 2: Hint, 3: Solve
     selectedMcOptions: [],
+    sessionAnswers: {}, // q_id -> score
+    sessionUserAnswers: {}, // q_id -> user answer text/options
+    sessionFeedback: {}, // q_id -> feedback object
+    isReviewMode: false,
+    currentReviewAttempt: null,
     progress: {
         score: 0,
         solved: {}, // question_id -> score
+        userAnswers: {}, // question_id -> user answer text/options
+        feedback: {}, // question_id -> { score, feedbackText, timestamp }
         streak: 0,
-        lastStudyDate: null
+        lastStudyDate: null,
+        history: []
     },
     hasAiKey: false
 };
@@ -84,11 +92,13 @@ function toggleTheme() {
 // Update Theme Switcher Icon
 function updateThemeIcon(theme) {
     const btn = document.getElementById('theme-toggle-btn');
-    if (!btn) return;
-    if (theme === 'light') {
-        btn.innerHTML = '<i class="fa-solid fa-sun"></i>';
-    } else {
-        btn.innerHTML = '<i class="fa-solid fa-moon"></i>';
+    if (btn) {
+        btn.innerHTML = theme === 'light' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+    }
+    // Also update Moodle breadcrumb theme icon
+    const moodleIcon = document.getElementById('moodle-theme-icon');
+    if (moodleIcon) {
+        moodleIcon.className = theme === 'light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
     }
 }
 
@@ -126,6 +136,19 @@ async function checkAiStatus() {
 async function loadProgress() {
     const uid = getCurrentUid();
 
+    function normalizeProgress(data) {
+        if (!data) return state.progress;
+        return {
+            score: typeof data.score === 'number' ? data.score : 0,
+            solved: data.solved || {},
+            userAnswers: data.userAnswers || {},
+            feedback: data.feedback || {},
+            streak: data.streak || 0,
+            lastStudyDate: data.lastStudyDate || null,
+            history: data.history || []
+        };
+    }
+
     // 1. Try Firestore first
     if (uid && typeof db !== 'undefined') {
         try {
@@ -133,7 +156,7 @@ async function loadProgress() {
             if (snap.exists) {
                 const data = snap.data();
                 if (data && data.solved) {
-                    state.progress = data;
+                    state.progress = normalizeProgress(data);
                     // Keep localStorage in sync for offline resilience
                     localStorage.setItem('swt_study_progress', JSON.stringify(state.progress));
                     console.log('Progress loaded from Firestore.');
@@ -147,10 +170,10 @@ async function loadProgress() {
                 try {
                     const localData = JSON.parse(local);
                     if (localData && localData.solved && Object.keys(localData.solved).length > 0) {
-                        state.progress = localData;
+                        state.progress = normalizeProgress(localData);
                         // Upload to Firestore so it's persisted to this account
                         await db.collection('users').doc(uid).collection('data').doc('progress')
-                            .set(localData);
+                            .set(state.progress);
                         console.log('Migrated localStorage progress to Firestore ✅');
                         return;
                     }
@@ -166,12 +189,19 @@ async function loadProgress() {
     // 2. localStorage fallback (offline or Firestore error)
     const local = localStorage.getItem('swt_study_progress');
     if (local) {
-        try { state.progress = JSON.parse(local); } catch(e) {}
+        try {
+            const parsed = JSON.parse(local);
+            if (parsed) state.progress = normalizeProgress(parsed);
+        } catch(e) {}
     }
 }
 
 // Save progress to Firestore + localStorage
 async function saveProgress() {
+    if (!state.progress.solved) state.progress.solved = {};
+    if (!state.progress.userAnswers) state.progress.userAnswers = {};
+    if (!state.progress.feedback) state.progress.feedback = {};
+
     // Update streak
     const today = new Date().toDateString();
     if (state.progress.lastStudyDate !== today) {
@@ -275,50 +305,86 @@ function updateStats() {
     renderTopicMastery();
 }
 
-// Start Studying a Deck
+// Start Studying a Deck (New Attempt)
 function startDeck(category) {
     state.activeCategory = category;
     state.questions = state.allDecks[category] || [];
+    state.isReviewMode = false;
+    state.currentReviewAttempt = null;
     
     if (state.questions.length === 0) {
         alert("Deck is empty or still being parsed. Please wait or try again.");
         return;
     }
     
-    // Initialize session answers and metrics
+    // Initialize fresh session answers and metrics for NEW attempt
     state.sessionAnswers = {};
+    state.sessionUserAnswers = {};
+    state.sessionFeedback = {};
+    state.moodleSelectedOptions = {};
+    state.moodleFlags = {};
+    state.currentMoodleIndex = 0;
+    state.moodleShowAll = false;
     state.currentSession = {
         category: category,
         startTime: new Date().toISOString(),
         mode: state.starMode
     };
     
-    // Set deck badge
-    let displayCategory = category.toUpperCase();
-    if (category === 'mock_exam') displayCategory = 'MOCK EXAM';
-    document.getElementById('deck-badge').innerText = displayCategory;
+    // Friendly display names
+    const catNames = {
+        exam: 'Exam WS25-26',
+        exercises: 'Exercises 1-10',
+        testates: 'Testates & Pingo',
+        slides: 'Lecture Slides / Terms',
+        mock_exam: 'Mock Exam (Variant 2)',
+        weak_topics: 'Weak Topics Review'
+    };
+    const displayName = catNames[category] || category.toUpperCase();
     
-    // Render Question List sidebar
-    renderQuestionList();
+    // Update Moodle header
+    const titleEl = document.getElementById('moodle-quiz-title');
+    if (titleEl) titleEl.innerText = displayName;
+    const crumbEl = document.getElementById('moodle-deck-crumb');
+    if (crumbEl) crumbEl.innerText = displayName;
+    const startedEl = document.getElementById('moodle-started-time');
+    if (startedEl) startedEl.innerText = new Date().toLocaleString();
+    const qCountEl = document.getElementById('moodle-questions-count');
+    if (qCountEl) qCountEl.innerText = state.questions.length + ' questions';
     
-    // Toggle View
-    views.dashboard.style.display = 'none';
-    views.study.style.display = 'grid';
-    
-    // Study mode tabs visibility (only for slides/definitions deck)
-    const modeTabs = document.getElementById('study-mode-tabs');
-    if (modeTabs) {
-        if (category === 'slides') {
-            modeTabs.style.display = 'flex';
-        } else {
-            modeTabs.style.display = 'none';
-        }
+    const statusBadge = document.querySelector('.moodle-status-badge');
+    if (statusBadge) {
+        statusBadge.className = 'moodle-status-badge in-progress';
+        statusBadge.innerText = 'In Progress';
+        statusBadge.style.background = '';
+        statusBadge.style.color = '';
+        statusBadge.style.borderColor = '';
     }
-    switchStudyTab('solve');
     
-    // Load first question
-    state.currentQuestionIndex = 0;
-    loadQuestion(0);
+    const finishBtn = document.getElementById('moodle-finish-attempt-btn');
+    if (finishBtn) {
+        finishBtn.innerHTML = '<i class="fa-solid fa-flag-checkered"></i> Finish attempt';
+        finishBtn.onclick = exitDeck;
+    }
+
+    updateMoodleScore();
+    
+    // Set legacy badge (hidden, for JS compat)
+    document.getElementById('deck-badge').innerText = displayName;
+    
+    // Toggle View — show Moodle layout
+    views.dashboard.style.display = 'none';
+    views.study.style.display = 'flex';
+    
+    // Set initial star mode UI
+    syncMoodleStarButtons();
+    
+    // Render the full question feed
+    renderMoodleFeed();
+    renderMoodleNavButtons();
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // Switch Study Mode Tab (Solve vs Flashcard)
@@ -389,41 +455,689 @@ function rateFlashcard(score) {
 
 // Exit studying deck
 function exitDeck() {
-    endDeckSession();
+    if (!state.isReviewMode) {
+        endDeckSession();
+    }
+    state.isReviewMode = false;
+    state.currentReviewAttempt = null;
     views.study.style.display = 'none';
     views.dashboard.style.display = 'block';
     updateStats();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Render questions sidebar
+// Render questions sidebar (legacy — kept for JS compat, Moodle uses renderMoodleFeed)
 function renderQuestionList() {
-    const list = document.getElementById('deck-question-list');
-    list.innerHTML = '';
-    
+    // No-op in Moodle mode
+}
+
+// ============================================================
+//  MOODLE LAYOUT RENDERING
+// ============================================================
+
+// Render all questions as Moodle-style cards in the feed
+function renderMoodleFeed() {
+    const feed = document.getElementById('moodle-questions-feed');
+    if (!feed) return;
+    feed.innerHTML = '';
+    if (state.currentMoodleIndex === undefined) state.currentMoodleIndex = 0;
+    if (state.moodleShowAll === undefined) state.moodleShowAll = false;
+
     state.questions.forEach((q, idx) => {
-        const item = document.createElement('li');
-        item.classList.add('question-item');
-        if (idx === state.currentQuestionIndex) {
-            item.classList.add('active');
+        try {
+        const pts    = q.points_max || (q.points_earned ? q.points_earned * 2 : 2.0);
+        const isMC   = Array.isArray(q.options) && q.options.length > 0;
+        const solved = state.sessionAnswers && state.sessionAnswers.hasOwnProperty(q.id);
+        const savedUserAns = (state.sessionUserAnswers && state.sessionUserAnswers[q.id]) || '';
+        const savedFeedback = (state.sessionFeedback && state.sessionFeedback[q.id]) || null;
+
+        // Reference image path
+        let image_page = q.image_page || '';
+        if (!image_page && state.activeCategory === 'exam' && q.page_num) {
+            image_page = 'exam_page_' + q.page_num + '.png';
         }
-        if (state.progress.solved[q.id] !== undefined) {
-            item.classList.add('completed');
+
+        // Safe text (strip HTML)
+        const questionText = String(q.question || (q.term ? 'Define: ' + q.term : 'Question ' + (idx + 1)))
+            .replace(/<[^>]*>/g, '');
+        const hintText     = String(q.hint || 'Try breaking the answer into core principles.')
+            .replace(/<[^>]*>/g, '');
+        const solVal       = Array.isArray(q.correct_answer) ? q.correct_answer.join(', ') : (q.correct_answer || '');
+        const solutionText = String(solVal).replace(/<[^>]*>/g, '');
+
+        // ── Outer block ──
+        const block = document.createElement('div');
+        block.className = 'moodle-question-block' + (solved ? ' completed-block' : '');
+        block.id = 'moodle-qblock-' + idx;
+
+        // ── Left strip ──
+        const strip = document.createElement('div');
+        strip.className = 'moodle-q-strip';
+
+        const label = document.createElement('span');
+        label.className = 'moodle-q-label';
+        label.textContent = 'Question';
+
+        const num = document.createElement('span');
+        num.className = 'moodle-q-number';
+        num.textContent = idx + 1;
+
+        const status = document.createElement('span');
+        status.id = 'moodle-qstatus-' + idx;
+        status.className = 'moodle-q-status ' + (solved ? 'answered' : 'not-answered');
+        status.textContent = solved ? 'Complete' : 'Not yet answered';
+
+        const marks = document.createElement('div');
+        marks.className = 'moodle-q-marks';
+        const marksStrong = document.createElement('strong');
+        marksStrong.id = 'moodle-qscore-' + idx;
+        const earnedPct = (state.sessionAnswers && state.sessionAnswers[q.id]) || 0;
+        const earnedPts = Math.round(pts * (earnedPct / 100) * 10) / 10;
+        marksStrong.textContent = solved
+            ? (earnedPts + ' / ' + pts)
+            : ('Mark ' + pts + ' out of ' + pts);
+        marks.appendChild(marksStrong);
+
+        const flagBtn = document.createElement('button');
+        flagBtn.id = 'moodle-qflag-' + idx;
+        const flagged = state.moodleFlags && state.moodleFlags[idx];
+        flagBtn.className = 'moodle-q-flag' + (flagged ? ' flagged' : '');
+        flagBtn.innerHTML = '<i class="fa-' + (flagged ? 'solid' : 'regular') + ' fa-flag"></i> Flag';
+        flagBtn.onclick = function() { toggleMoodleFlag(idx); };
+
+        strip.appendChild(label);
+        strip.appendChild(num);
+        strip.appendChild(status);
+        strip.appendChild(marks);
+        strip.appendChild(flagBtn);
+
+        // ── Right card ──
+        const card = document.createElement('div');
+        card.className = 'moodle-q-card';
+
+        // Reference image
+        if (image_page) {
+            const img = document.createElement('img');
+            img.className = 'moodle-q-refimage';
+            img.src = '/static/images/' + image_page;
+            img.alt = 'Reference diagram';
+            img.loading = 'lazy';
+            card.appendChild(img);
         }
-        
-        // Create title
-        let title = q.task_title || q.term || q.question;
-        // Clean HTML tags
-        title = title.replace(/<[^>]*>/g, '');
-        item.innerHTML = `<span class="q-num">${idx + 1}</span><span class="q-title">${title}</span>`;
-        item.onclick = () => {
-            state.currentQuestionIndex = idx;
-            loadQuestion(idx);
-            // Highlight active side list item
-            document.querySelectorAll('.question-item').forEach(el => el.classList.remove('active'));
-            item.classList.add('active');
-        };
-        list.appendChild(item);
+
+        // Question prompt label
+        const promptEl = document.createElement('p');
+        promptEl.className = 'moodle-q-prompt';
+        promptEl.textContent = isMC ? 'Select one or more:' : 'Write your answer:';
+        card.appendChild(promptEl);
+
+        // Question text
+        const qTextEl = document.createElement('p');
+        qTextEl.className = 'moodle-q-text';
+        qTextEl.textContent = questionText;
+        card.appendChild(qTextEl);
+
+        // ── Input area ──
+        if (isMC) {
+            const ul = document.createElement('ul');
+            ul.className = 'moodle-mc-list';
+
+            if (savedUserAns && (!state.moodleSelectedOptions[idx] || state.moodleSelectedOptions[idx].length === 0)) {
+                if (!state.moodleSelectedOptions) state.moodleSelectedOptions = {};
+                if (Array.isArray(savedUserAns)) {
+                    state.moodleSelectedOptions[idx] = [...savedUserAns];
+                } else {
+                    const matches = String(savedUserAns).match(/\([a-zA-Z0-9]\)/g);
+                    if (matches) {
+                        state.moodleSelectedOptions[idx] = matches;
+                    } else {
+                        state.moodleSelectedOptions[idx] = String(savedUserAns).split(',').map(s => s.trim()).filter(Boolean);
+                    }
+                }
+            }
+            const currentSelected = (state.moodleSelectedOptions && state.moodleSelectedOptions[idx]) || [];
+
+            q.options.forEach((opt, oi) => {
+                const li = document.createElement('li');
+                const optKey = opt.substring(0, 3).trim();
+                const isSelected = currentSelected.some(sel => 
+                    sel.toLowerCase() === optKey.toLowerCase() || 
+                    opt.toLowerCase().startsWith(sel.toLowerCase()) ||
+                    sel.toLowerCase() === opt.toLowerCase()
+                );
+
+                li.className = 'moodle-mc-item' + (isSelected ? ' selected' : '');
+                li.id = 'moodle-opt-' + idx + '-' + oi;
+                li.onclick = function() { toggleMoodleMCOption(idx, oi, this); };
+
+                const cb = document.createElement('div');
+                cb.className = 'moodle-mc-checkbox';
+                cb.innerHTML = '<i class="fa-solid fa-check"></i>';
+
+                const optSpan = document.createElement('span');
+                optSpan.textContent = String(opt).replace(/<[^>]*>/g, '');
+
+                li.appendChild(cb);
+                li.appendChild(optSpan);
+                ul.appendChild(li);
+            });
+            card.appendChild(ul);
+        } else {
+            const ta = document.createElement('textarea');
+            ta.className = 'moodle-textarea';
+            ta.id = 'moodle-textarea-' + idx;
+            ta.placeholder = 'Type your detailed answer here...';
+            if (savedUserAns) {
+                ta.value = savedUserAns;
+            }
+            card.appendChild(ta);
+        }
+
+        // ── Hint panel ──
+        const showHint   = state.starMode === 2;
+        const showSolve  = state.starMode === 1;
+        const showSubmit = state.starMode !== 1;
+
+        const hintPanel = document.createElement('div');
+        hintPanel.className = 'moodle-hint-panel';
+        hintPanel.id = 'moodle-hint-' + idx;
+        hintPanel.style.display = showHint ? 'block' : 'none';
+        hintPanel.innerHTML = '<h4><i class="fa-solid fa-lightbulb"></i> Study Hint:</h4>';
+        const hintP = document.createElement('p');
+        hintP.textContent = hintText;
+        hintPanel.appendChild(hintP);
+        card.appendChild(hintPanel);
+
+        // ── Solution panel ──
+        const solPanel = document.createElement('div');
+        solPanel.className = 'moodle-solution-panel';
+        solPanel.id = 'moodle-solution-' + idx;
+        const hasFeedback = savedFeedback && savedFeedback.feedbackText;
+        solPanel.style.display = (showSolve || solved || hasFeedback) ? 'block' : 'none';
+        solPanel.innerHTML = '<h4><i class="fa-solid fa-circle-check"></i> Reference Solution:</h4>';
+        const solP = document.createElement('p');
+        solP.textContent = solutionText;
+        solPanel.appendChild(solP);
+        card.appendChild(solPanel);
+
+        // ── Feedback panel ──
+        const fbPanel = document.createElement('div');
+        fbPanel.className = 'moodle-feedback-panel';
+        fbPanel.id = 'moodle-feedback-' + idx;
+        fbPanel.style.display = hasFeedback ? 'block' : 'none';
+        const fbScore = hasFeedback ? savedFeedback.score : 0;
+        const fbScoreClass = fbScore >= 75 ? 'high' : fbScore >= 50 ? 'med' : 'low';
+        fbPanel.innerHTML =
+            '<div class="moodle-feedback-header">' +
+            '<h4><i class="fa-solid fa-graduation-cap"></i> AI Grading Feedback:</h4>' +
+            '<span id="moodle-score-badge-' + idx + '" class="score-badge ' + fbScoreClass + '">' + (hasFeedback ? fbScore + '% Correct' : '') + '</span>' +
+            '</div>' +
+            '<p class="moodle-feedback-text" id="moodle-feedback-text-' + idx + '">' + (hasFeedback ? String(savedFeedback.feedbackText).replace(/<[^>]*>/g, '') : '') + '</p>';
+        card.appendChild(fbPanel);
+
+        // ── Self-assess panel ──
+        const selfPanel = document.createElement('div');
+        selfPanel.className = 'moodle-self-assess';
+        selfPanel.id = 'moodle-self-' + idx;
+        selfPanel.style.display = 'none';
+        selfPanel.innerHTML =
+            '<h4><i class="fa-solid fa-balance-scale"></i> Grade yourself:</h4>' +
+            '<p>Compare to the Reference Solution above.</p>' +
+            '<div class="moodle-self-btns">' +
+            '<button class="self-btn yes" onclick="moodleGradeSelf(' + idx + ', 100)"><i class="fa-solid fa-circle-check"></i> Got it! (100%)</button>' +
+            '<button class="self-btn maybe" onclick="moodleGradeSelf(' + idx + ', 50)"><i class="fa-solid fa-adjust"></i> Partially (50%)</button>' +
+            '<button class="self-btn no" onclick="moodleGradeSelf(' + idx + ', 0)"><i class="fa-solid fa-circle-xmark"></i> Missed it (0%)</button>' +
+            '</div>';
+        card.appendChild(selfPanel);
+
+        // ── Actions row ──
+        const actions = document.createElement('div');
+        actions.className = 'moodle-q-actions';
+
+        // Previous button
+        if (idx > 0) {
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'moodle-btn moodle-btn-secondary';
+            prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left"></i> Previous';
+            prevBtn.onclick = function() { showMoodleQuestion(idx - 1); };
+            actions.appendChild(prevBtn);
+        }
+
+        // Hint button (star mode 2)
+        if (showHint) {
+            const hintBtn = document.createElement('button');
+            hintBtn.className = 'moodle-btn moodle-btn-secondary';
+            hintBtn.id = 'moodle-hint-btn-' + idx;
+            hintBtn.innerHTML = '<i class="fa-solid fa-lightbulb"></i> Reveal Hint';
+            hintBtn.onclick = function() { moodleRevealHint(idx); };
+            actions.appendChild(hintBtn);
+        }
+
+        // Check button (star mode 2 and 3)
+        const submitBtn = document.createElement('button');
+        submitBtn.className = 'moodle-btn moodle-btn-primary';
+        submitBtn.id = 'moodle-submit-btn-' + idx;
+        submitBtn.style.display = showSubmit ? '' : 'none';
+        submitBtn.innerHTML = '<span id="moodle-submit-text-' + idx + '">' + (solved ? 'Re-check' : 'Check') + '</span>' +
+            '<div class="moodle-spinner" id="moodle-spinner-' + idx + '"></div>';
+        submitBtn.onclick = function() { moodleSubmit(idx); };
+        actions.appendChild(submitBtn);
+
+        // Next button
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'moodle-btn moodle-btn-success';
+        nextBtn.id = 'moodle-next-btn-' + idx;
+        nextBtn.style.display = (showSolve || solved || hasFeedback) ? 'inline-flex' : 'none';
+        const isLast = idx === state.questions.length - 1;
+        nextBtn.innerHTML = isLast
+            ? '<i class="fa-solid fa-flag-checkered"></i> Finish'
+            : 'Next <i class="fa-solid fa-chevron-right"></i>';
+        nextBtn.onclick = function() { moodleNextFrom(idx); };
+        actions.appendChild(nextBtn);
+
+        card.appendChild(actions);
+
+        block.appendChild(strip);
+        block.appendChild(card);
+        feed.appendChild(block);
+        } catch (err) {
+            console.error('Error rendering question card index ' + idx, err);
+        }
     });
+
+    // Default: show only the first question (one-at-a-time mode)
+    if (!state.moodleShowAll) {
+        showMoodleQuestion(state.currentMoodleIndex);
+    }
+}
+
+// Show a single question (one-at-a-time mode)
+function showMoodleQuestion(idx) {
+    const total = state.questions.length;
+    if (idx < 0) idx = 0;
+    if (idx >= total) idx = total - 1;
+    state.currentMoodleIndex = idx;
+
+    const feed = document.getElementById('moodle-questions-feed');
+    if (!feed) return;
+
+    // Show only this block, hide all others
+    feed.querySelectorAll('.moodle-question-block').forEach((block, i) => {
+        block.style.display = (i === idx) ? '' : 'none';
+    });
+
+    // Update nav sidebar: active on current, keep answered states
+    document.querySelectorAll('.moodle-nav-btn').forEach((btn, i) => {
+        btn.classList.toggle('nav-active', i === idx);
+    });
+
+    // Update quiz navigation counter in header
+    const qCountEl = document.getElementById('moodle-questions-count');
+    if (qCountEl) qCountEl.textContent = 'Question ' + (idx + 1) + ' of ' + total;
+
+    // Scroll feed into view
+    const block = document.getElementById('moodle-qblock-' + idx);
+    if (block) block.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Render nav sidebar buttons
+function renderMoodleNavButtons() {
+    const nav = document.getElementById('moodle-nav-buttons');
+    if (!nav) return;
+    nav.innerHTML = '';
+    state.questions.forEach((q, idx) => {
+        const isSolved = state.sessionAnswers && state.sessionAnswers.hasOwnProperty(q.id);
+        const isFlagged = state.moodleFlags && state.moodleFlags[idx];
+        const btn = document.createElement('button');
+        btn.className = 'moodle-nav-btn' + (isSolved ? ' nav-answered' : '') + (isFlagged ? ' nav-flagged' : '');
+        btn.id = 'moodle-navbtn-' + idx;
+        btn.textContent = idx + 1;
+        btn.onclick = function() { showMoodleQuestion(idx); };
+        nav.appendChild(btn);
+    });
+
+    // Legend (only add once)
+    if (!document.querySelector('.moodle-nav-legend')) {
+        const legend = document.createElement('div');
+        legend.className = 'moodle-nav-legend';
+        legend.innerHTML =
+            '<div class="moodle-legend-item"><div class="moodle-legend-dot dot-unanswered"></div> Not answered</div>' +
+            '<div class="moodle-legend-item"><div class="moodle-legend-dot dot-answered"></div> Answered</div>' +
+            '<div class="moodle-legend-item"><div class="moodle-legend-dot dot-active"></div> Current</div>';
+        const sidebar = document.querySelector('.moodle-nav-sidebar');
+        if (sidebar) sidebar.appendChild(legend);
+    }
+}
+
+// Scroll to a question (used in show-all mode)
+function scrollToQuestion(idx) {
+    if (!state.moodleShowAll) {
+        showMoodleQuestion(idx);
+        return;
+    }
+    const block = document.getElementById('moodle-qblock-' + idx);
+    if (block) {
+        block.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        block.classList.add('active-block');
+        setTimeout(() => block.classList.remove('active-block'), 1800);
+    }
+}
+
+// Toggle flag on a question
+function toggleMoodleFlag(idx) {
+    if (!state.moodleFlags) state.moodleFlags = {};
+    state.moodleFlags[idx] = !state.moodleFlags[idx];
+    const btn = document.getElementById(`moodle-qflag-${idx}`);
+    const navBtn = document.getElementById(`moodle-navbtn-${idx}`);
+    if (btn) {
+        const flagged = state.moodleFlags[idx];
+        btn.className = `moodle-q-flag${flagged ? ' flagged' : ''}`;
+        btn.innerHTML = `<i class="fa-${flagged ? 'solid' : 'regular'} fa-flag"></i> Flag question`;
+    }
+    if (navBtn) {
+        navBtn.classList.toggle('nav-flagged', !!state.moodleFlags[idx]);
+    }
+}
+
+// Toggle MC option selection for a specific question
+function toggleMoodleMCOption(qIdx, optIdx, el) {
+    if (!state.moodleSelectedOptions) state.moodleSelectedOptions = {};
+    if (!state.moodleSelectedOptions[qIdx]) state.moodleSelectedOptions[qIdx] = [];
+    const q = state.questions[qIdx];
+    if (!q || !q.options) return;
+    const opt = q.options[optIdx];
+    const optKey = opt.substring(0, 3).trim();
+    el.classList.toggle('selected');
+    if (el.classList.contains('selected')) {
+        if (!state.moodleSelectedOptions[qIdx].includes(optKey)) {
+            state.moodleSelectedOptions[qIdx].push(optKey);
+        }
+    } else {
+        state.moodleSelectedOptions[qIdx] = state.moodleSelectedOptions[qIdx].filter(o => o !== optKey);
+    }
+}
+
+// Reveal hint for a specific question
+function moodleRevealHint(idx) {
+    const panel = document.getElementById(`moodle-hint-${idx}`);
+    if (panel) panel.style.display = 'block';
+}
+
+// Submit a specific question in Moodle mode
+async function moodleSubmit(idx) {
+    const q = state.questions[idx];
+    if (!q) return;
+
+    const isMC = q.type === 'multiple_choice' || (q.options && q.options.length > 0);
+    let userAns;
+    if (isMC) {
+        const sel = state.moodleSelectedOptions && state.moodleSelectedOptions[idx] || [];
+        if (sel.length === 0) {
+            alert('Please select at least one option.');
+            return;
+        }
+        userAns = sel.join(', ');
+    } else {
+        const ta = document.getElementById(`moodle-textarea-${idx}`);
+        userAns = ta ? ta.value.trim() : '';
+        if (!userAns) {
+            alert('Please type an answer before submitting.');
+            return;
+        }
+    }
+
+    const submitBtn = document.getElementById(`moodle-submit-btn-${idx}`);
+    const submitText = document.getElementById(`moodle-submit-text-${idx}`);
+    const spinner = document.getElementById(`moodle-spinner-${idx}`);
+    if (submitBtn) { submitBtn.disabled = true; }
+    if (submitText) { submitText.innerText = 'Checking...'; }
+    if (spinner) { spinner.style.display = 'block'; }
+
+    try {
+        const response = await fetch('/api/check-answer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id: q.id,
+                category: q.category || state.activeCategory,
+                user_answer: userAns
+            })
+        });
+        const result = await response.json();
+
+        if (spinner) spinner.style.display = 'none';
+        if (submitText) submitText.innerText = 'Check';
+        if (submitBtn) submitBtn.disabled = false;
+
+        if (result.fallback) {
+            moodleSaveScore(idx, 0, userAns, "Self-assessment mode active.");
+            // Show solution + self-assessment
+            const solPanel = document.getElementById(`moodle-solution-${idx}`);
+            const selfPanel = document.getElementById(`moodle-self-${idx}`);
+            if (solPanel) solPanel.style.display = 'block';
+            if (selfPanel) selfPanel.style.display = 'block';
+            if (submitBtn) submitBtn.style.display = 'none';
+        } else {
+            moodleShowGradingResult(idx, result.score, result.feedback, result.correct_answer, userAns);
+        }
+    } catch (e) {
+        console.error('Error submitting moodle answer', e);
+        if (spinner) spinner.style.display = 'none';
+        if (submitText) submitText.innerText = 'Check';
+        if (submitBtn) submitBtn.disabled = false;
+        moodleSaveScore(idx, 0, userAns, "Error during grading fallback.");
+        // Fallback
+        const solPanel = document.getElementById(`moodle-solution-${idx}`);
+        const selfPanel = document.getElementById(`moodle-self-${idx}`);
+        if (solPanel) solPanel.style.display = 'block';
+        if (selfPanel) selfPanel.style.display = 'block';
+        if (submitBtn) submitBtn.style.display = 'none';
+    }
+}
+
+// Show grading result on a specific card
+function moodleShowGradingResult(idx, score, feedback, correctAnswer, userAns) {
+    const feedbackPanel = document.getElementById(`moodle-feedback-${idx}`);
+    const scoreBadge = document.getElementById(`moodle-score-badge-${idx}`);
+    const feedbackText = document.getElementById(`moodle-feedback-text-${idx}`);
+    const solPanel = document.getElementById(`moodle-solution-${idx}`);
+    const submitBtn = document.getElementById(`moodle-submit-btn-${idx}`);
+    const nextBtn = document.getElementById(`moodle-next-btn-${idx}`);
+
+    if (feedbackPanel) feedbackPanel.style.display = 'block';
+    if (scoreBadge) {
+        scoreBadge.textContent = `${score}% Correct`;
+        scoreBadge.className = 'score-badge ' + (score >= 75 ? 'high' : score >= 50 ? 'med' : 'low');
+    }
+    if (feedbackText) feedbackText.textContent = feedback;
+    if (solPanel) {
+        solPanel.style.display = 'block';
+        const p = solPanel.querySelector('p');
+        if (p && correctAnswer) p.textContent = correctAnswer.replace(/<[^>]*>/g, '');
+    }
+    if (submitBtn) {
+        submitBtn.style.display = 'inline-flex';
+        const submitText = document.getElementById(`moodle-submit-text-${idx}`);
+        if (submitText) submitText.innerText = 'Re-check';
+    }
+    if (nextBtn) nextBtn.style.display = 'inline-flex';
+
+    // Save score, answer, and feedback
+    moodleSaveScore(idx, score, userAns, feedback);
+
+    // Confetti for high scores
+    if (score >= 75) {
+        confetti({ particleCount: 60, spread: 50, origin: { y: 0.8 } });
+    }
+
+    // Update UI
+    moodleMarkAnswered(idx);
+    updateMoodleScore();
+}
+
+// Self-assess grading for moodle per-question
+function moodleGradeSelf(idx, score) {
+    const q = state.questions[idx];
+    let userAns = '';
+    if (q) {
+        const isMC = q.type === 'multiple_choice' || (q.options && q.options.length > 0);
+        if (isMC) {
+            const sel = state.moodleSelectedOptions && state.moodleSelectedOptions[idx] || [];
+            userAns = sel.join(', ');
+        } else {
+            const ta = document.getElementById(`moodle-textarea-${idx}`);
+            userAns = ta ? ta.value.trim() : '';
+        }
+    }
+    moodleSaveScore(idx, score, userAns, `Self-assessed grade: ${score}%`);
+    if (score >= 50) {
+        confetti({ particleCount: 40, spread: 40, origin: { y: 0.8 } });
+    }
+    const selfPanel = document.getElementById(`moodle-self-${idx}`);
+    const nextBtn = document.getElementById(`moodle-next-btn-${idx}`);
+    if (selfPanel) selfPanel.style.display = 'none';
+    if (nextBtn) nextBtn.style.display = 'inline-flex';
+    moodleMarkAnswered(idx);
+    updateMoodleScore();
+}
+
+// Save score for a specific question in Moodle mode
+function moodleSaveScore(idx, score, userAns, feedbackText) {
+    if (state.isReviewMode) return;
+    const q = state.questions[idx];
+    if (!q) return;
+    if (!state.sessionAnswers) state.sessionAnswers = {};
+    state.sessionAnswers[q.id] = score;
+
+    if (!state.sessionUserAnswers) state.sessionUserAnswers = {};
+    if (userAns !== undefined) state.sessionUserAnswers[q.id] = userAns;
+
+    if (!state.sessionFeedback) state.sessionFeedback = {};
+    if (feedbackText !== undefined) {
+        state.sessionFeedback[q.id] = {
+            score: score,
+            feedbackText: feedbackText,
+            timestamp: new Date().toISOString()
+        };
+    }
+
+    if (!state.progress.userAnswers) state.progress.userAnswers = {};
+    if (userAns !== undefined) state.progress.userAnswers[q.id] = userAns;
+
+    if (!state.progress.feedback) state.progress.feedback = {};
+    if (feedbackText !== undefined) {
+        state.progress.feedback[q.id] = {
+            score: score,
+            feedbackText: feedbackText,
+            timestamp: new Date().toISOString()
+        };
+    }
+
+    const ptsMax = q.points_max || (q.points_earned ? q.points_earned * 2 : 2.0);
+    const earnedPoints = Math.round(ptsMax * (score / 100) * 10) / 10;
+    const prevPoints = (state.progress.solved && state.progress.solved[q.id]) || 0;
+    
+    if (earnedPoints >= prevPoints || state.progress.solved[q.id] === undefined) {
+        state.progress.score += (earnedPoints - prevPoints);
+        state.progress.solved[q.id] = earnedPoints;
+    }
+    saveProgress();
+}
+
+// Mark a question as answered in the left strip and nav sidebar
+function moodleMarkAnswered(idx) {
+    const q = state.questions[idx];
+    const statusEl = document.getElementById(`moodle-qstatus-${idx}`);
+    const scoreEl = document.getElementById(`moodle-qscore-${idx}`);
+    const navBtn = document.getElementById(`moodle-navbtn-${idx}`);
+    const block = document.getElementById(`moodle-qblock-${idx}`);
+    const pts = q ? (q.points_max || (q.points_earned ? q.points_earned * 2 : 2.0)) : 2.0;
+    const earned = q ? ((state.progress.solved && state.progress.solved[q.id]) || 0) : 0;
+
+    if (statusEl) { statusEl.textContent = 'Complete'; statusEl.className = 'moodle-q-status answered'; }
+    if (scoreEl) { scoreEl.innerHTML = `<strong>${earned} / ${pts}</strong>`; }
+    if (navBtn) { navBtn.classList.remove('nav-active'); navBtn.classList.add('nav-answered'); }
+    if (block) { block.classList.add('completed-block'); }
+}
+
+// Update score in quiz info header
+function updateMoodleScore() {
+    const scoreEl = document.getElementById('moodle-score-so-far');
+    if (!scoreEl) return;
+    
+    if (!state.questions || state.questions.length === 0) {
+        scoreEl.textContent = '—';
+        return;
+    }
+    
+    const totalInDeck = state.questions.length;
+    
+    if (state.isReviewMode && state.currentReviewAttempt) {
+        const att = state.currentReviewAttempt;
+        scoreEl.textContent = `${att.solvedCount} / ${att.totalCount} answered (${att.pointsEarned}/${att.pointsMax} pts)`;
+        return;
+    }
+    
+    // Count answered in current session
+    const sessionSolvedCount = state.questions.filter(q => state.sessionAnswers && state.sessionAnswers.hasOwnProperty(q.id)).length;
+    
+    let sessionEarned = 0;
+    let deckMax = 0;
+    state.questions.forEach(q => {
+        const pts = q.points_max || (q.points_earned ? q.points_earned * 2 : 2.0);
+        deckMax += pts;
+        if (state.sessionAnswers && state.sessionAnswers.hasOwnProperty(q.id)) {
+            const pct = state.sessionAnswers[q.id] || 0;
+            sessionEarned += (pts * (pct / 100));
+        }
+    });
+    sessionEarned = Math.round(sessionEarned * 10) / 10;
+    deckMax = Math.round(deckMax * 10) / 10;
+    
+    scoreEl.textContent = `${sessionSolvedCount} / ${totalInDeck} answered (${sessionEarned}/${deckMax} pts)`;
+}
+
+// Scroll to next unanswered question or show completion
+function moodleNextFrom(idx) {
+    // Simply advance to next question (one-at-a-time mode)
+    const next = idx + 1;
+    if (next < state.questions.length) {
+        showMoodleQuestion(next);
+    } else {
+        // Last question — offer to finish
+        const btn = document.getElementById('moodle-next-btn-' + idx);
+        if (btn) {
+            btn.innerHTML = '<i class="fa-solid fa-flag-checkered"></i> Finish';
+            btn.onclick = function() {
+                if (confirm('Finished! Return to dashboard?')) exitDeck();
+            };
+        } else {
+            if (confirm('You answered all questions! Return to dashboard?')) exitDeck();
+        }
+    }
+}
+
+// Toggle between show-all and one-at-a-time mode
+function toggleMoodleShowAll() {
+    const feed = document.getElementById('moodle-questions-feed');
+    if (!feed) return;
+    const btn = document.querySelector('.moodle-show-all-btn');
+
+    state.moodleShowAll = !state.moodleShowAll;
+
+    if (state.moodleShowAll) {
+        // Show all questions at once
+        feed.querySelectorAll('.moodle-question-block').forEach(b => b.style.display = '');
+        document.querySelectorAll('.moodle-nav-btn').forEach(b => b.classList.remove('nav-active'));
+        if (btn) btn.innerHTML = '<i class="fa-solid fa-chevron-down"></i> One at a time';
+        // Reset header count to total
+        const qCountEl = document.getElementById('moodle-questions-count');
+        if (qCountEl) qCountEl.textContent = state.questions.length + ' questions';
+    } else {
+        // Back to one-at-a-time — show current
+        showMoodleQuestion(state.currentMoodleIndex || 0);
+        if (btn) btn.innerHTML = '<i class="fa-solid fa-list"></i> Show all questions';
+    }
 }
 
 // Load Question Details
@@ -547,16 +1261,33 @@ function loadQuestion(index) {
 function setStarMode(mode) {
     state.starMode = mode;
     
-    // Update active star buttons
+    // Update legacy star buttons (in hidden area)
     document.querySelectorAll('.mode-star-btn').forEach((btn, idx) => {
-        if (idx + 1 === mode) {
-            btn.classList.add('active');
-        } else {
-            btn.classList.remove('active');
-        }
+        btn.classList.toggle('active', idx + 1 === mode);
     });
     
+    // Update Moodle breadcrumb star buttons
+    syncMoodleStarButtons();
+    
+    // If Moodle feed is rendered, re-render to apply mode
+    const feed = document.getElementById('moodle-questions-feed');
+    if (feed && feed.children.length > 0) {
+        renderMoodleFeed();
+        renderMoodleNavButtons();
+    }
+    
     applyStarMode();
+}
+
+// Sync Moodle breadcrumb star button active state
+function syncMoodleStarButtons() {
+    const modeLabels = { 1: 'Lookup Mode', 2: 'Hint Mode', 3: 'Solve Mode' };
+    [1, 2, 3].forEach(n => {
+        const btn = document.getElementById(`moodle-star-${n}`);
+        if (btn) btn.classList.toggle('active', n === state.starMode);
+    });
+    const label = document.getElementById('moodle-star-label');
+    if (label) label.textContent = modeLabels[state.starMode] || 'Solve Mode';
 }
 
 // Update UI elements depending on Star Mode
@@ -766,8 +1497,46 @@ function nextQuestion() {
 
 // End the current study session and save performance to history
 function endDeckSession() {
-    if (!state.currentSession || !state.sessionAnswers) return;
+    if (!state.currentSession || !state.sessionAnswers || state.isReviewMode) return;
     
+    // Auto-check any unsubmitted answers where the user selected MC options or typed text
+    state.questions.forEach((q, idx) => {
+        if (!state.sessionAnswers.hasOwnProperty(q.id)) {
+            const isMC = Array.isArray(q.options) && q.options.length > 0;
+            let userAns = '';
+            
+            if (isMC) {
+                const sel = state.moodleSelectedOptions && state.moodleSelectedOptions[idx] || [];
+                if (sel.length > 0) {
+                    userAns = sel.join(', ');
+                    // Auto-grade MC choices
+                    const solVal = Array.isArray(q.correct_answer) ? q.correct_answer.join(', ') : (q.correct_answer || '');
+                    const matchesUser = userAns.match(/\([a-zA-Z0-9]\)/g) || userAns.split(',').map(s => s.trim());
+                    const matchesCorr = solVal.match(/\([a-zA-Z0-9]\)/g) || solVal.split(',').map(s => s.trim());
+                    
+                    const setU = new Set(matchesUser.map(s => s.toLowerCase()));
+                    const setC = new Set(matchesCorr.map(s => s.toLowerCase()));
+                    
+                    let isEq = setU.size === setC.size;
+                    if (isEq) {
+                        for (let item of setU) {
+                            if (!setC.has(item)) { isEq = false; break; }
+                        }
+                    }
+                    const score = isEq ? 100 : 0;
+                    const feedback = isEq ? "Correct! Well done." : ("Incorrect. Correct choice: " + solVal);
+                    moodleSaveScore(idx, score, userAns, feedback);
+                }
+            } else {
+                const ta = document.getElementById(`moodle-textarea-${idx}`);
+                if (ta && ta.value.trim()) {
+                    userAns = ta.value.trim();
+                    moodleSaveScore(idx, 100, userAns, "Submitted with attempt.");
+                }
+            }
+        }
+    });
+
     const session = state.currentSession;
     let solvedInSession = 0;
     let totalScoreInSession = 0;
@@ -797,7 +1566,10 @@ function endDeckSession() {
             totalCount: state.questions.length,
             score: pctScore,
             pointsEarned: Math.round(totalScoreInSession * 10) / 10,
-            pointsMax: Math.round(maxPossibleScore * 10) / 10
+            pointsMax: Math.round(maxPossibleScore * 10) / 10,
+            sessionAnswers: { ...state.sessionAnswers },
+            sessionUserAnswers: { ...state.sessionUserAnswers },
+            sessionFeedback: { ...state.sessionFeedback }
         };
         
         if (!state.progress.history) {
@@ -810,7 +1582,74 @@ function endDeckSession() {
     renderHistory();
     
     state.currentSession = null;
-    state.sessionAnswers = null;
+    state.sessionAnswers = {};
+    state.sessionUserAnswers = {};
+    state.sessionFeedback = {};
+}
+
+// Review a past attempt from history
+function reviewAttempt(attemptId) {
+    const history = state.progress.history || [];
+    const attempt = history.find(a => a.id === attemptId);
+    if (!attempt) return;
+    
+    state.activeCategory = attempt.category;
+    state.questions = state.allDecks[attempt.category] || [];
+    state.isReviewMode = true;
+    state.currentReviewAttempt = attempt;
+    
+    state.sessionAnswers = attempt.sessionAnswers || {};
+    state.sessionUserAnswers = attempt.sessionUserAnswers || {};
+    state.sessionFeedback = attempt.sessionFeedback || {};
+    state.moodleSelectedOptions = {};
+    state.moodleFlags = {};
+    state.currentMoodleIndex = 0;
+    state.moodleShowAll = false;
+    
+    const catNames = {
+        exam: 'Exam WS25-26',
+        exercises: 'Exercises 1-10',
+        testates: 'Testates & Pingo',
+        slides: 'Lecture Slides / Terms',
+        mock_exam: 'Mock Exam (Variant 2)',
+        weak_topics: 'Weak Topics Review'
+    };
+    const displayName = (catNames[attempt.category] || attempt.category.toUpperCase()) + ' (Review)';
+    
+    const titleEl = document.getElementById('moodle-quiz-title');
+    if (titleEl) titleEl.innerText = displayName;
+    const crumbEl = document.getElementById('moodle-deck-crumb');
+    if (crumbEl) crumbEl.innerText = displayName;
+    const startedEl = document.getElementById('moodle-started-time');
+    if (startedEl) startedEl.innerText = new Date(attempt.timestamp).toLocaleString();
+    const qCountEl = document.getElementById('moodle-questions-count');
+    if (qCountEl) qCountEl.innerText = state.questions.length + ' questions';
+    
+    const statusBadge = document.querySelector('.moodle-status-badge');
+    if (statusBadge) {
+        statusBadge.className = 'moodle-status-badge finished';
+        statusBadge.innerText = 'Attempt Review';
+        statusBadge.style.background = 'rgba(16, 185, 129, 0.15)';
+        statusBadge.style.color = '#10b981';
+        statusBadge.style.borderColor = '#10b981';
+    }
+    
+    const finishBtn = document.getElementById('moodle-finish-attempt-btn');
+    if (finishBtn) {
+        finishBtn.innerHTML = '<i class="fa-solid fa-arrow-left"></i> Exit Review';
+        finishBtn.onclick = exitDeck;
+    }
+    
+    updateMoodleScore();
+    
+    views.dashboard.style.display = 'none';
+    views.study.style.display = 'flex';
+    
+    syncMoodleStarButtons();
+    renderMoodleFeed();
+    renderMoodleNavButtons();
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // Render dynamic attempt history list in dashboard table
@@ -822,7 +1661,7 @@ function renderHistory() {
     if (history.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="5" class="empty-history">No attempts recorded yet. Start studying a deck above!</td>
+                <td colspan="6" class="empty-history">No attempts recorded yet. Start studying a deck above!</td>
             </tr>
         `;
         return;
@@ -868,6 +1707,11 @@ function renderHistory() {
                 <span class="attempt-score ${scoreClass}">${attempt.score}%</span> 
                 <span style="color: var(--text-secondary); font-size: 0.8rem;">(${attempt.pointsEarned}/${attempt.pointsMax} pts)</span>
             </td>
+            <td>
+                <button class="moodle-btn moodle-btn-secondary" onclick="reviewAttempt('${attempt.id}')" style="padding: 0.3rem 0.65rem; font-size: 0.8rem; border-radius: 6px;">
+                    <i class="fa-solid fa-magnifying-glass"></i> Review
+                </button>
+            </td>
         `;
         
         tbody.appendChild(tr);
@@ -886,37 +1730,18 @@ function clearHistory() {
 // Toggle UML Sandbox Pane
 function toggleUmlSandbox() {
     const sandbox = document.getElementById('uml-sandbox-pane');
-    const visualPane = document.getElementById('visual-pane');
-    const workspace = document.getElementById('workspace-panel');
     const btn = document.getElementById('toggle-uml-btn');
-    if (!sandbox || !workspace || !btn) return;
-    
-    const isVisible = sandbox.style.display === 'flex';
-    
+    if (!sandbox) return;
+
+    const isVisible = sandbox.style.display !== 'none' && sandbox.style.display !== '';
+
     if (isVisible) {
-        // Hide Sandbox
         sandbox.style.display = 'none';
-        btn.classList.remove('active');
-        
-        // Re-evaluate if split screen is needed for visual pane
-        const q = state.questions[state.currentQuestionIndex];
-        let hasImage = q && (q.image_page || (state.activeCategory === 'exam' && q.page_num));
-        if (hasImage) {
-            visualPane.style.display = 'flex';
-            workspace.classList.add('split-screen');
-        } else {
-            visualPane.style.display = 'none';
-            workspace.classList.remove('split-screen');
-        }
+        if (btn) btn.classList.remove('active');
     } else {
-        // Show Sandbox
         sandbox.style.display = 'flex';
-        btn.classList.add('active');
-        workspace.classList.add('split-screen');
-        
-        // Hide visual pane if open, to avoid 3-column clutter
-        visualPane.style.display = 'none';
-        
+        if (btn) btn.classList.add('active');
+
         // Render current content or insert initial class template if empty
         const editor = document.getElementById('uml-editor');
         if (editor && !editor.value.trim()) {
@@ -1127,23 +1952,33 @@ function startWeakQuestionsDeck(weakQuestions) {
     state.activeCategory = 'weak_topics';
     state.questions = weakQuestions;
     state.sessionAnswers = {};
+    state.moodleSelectedOptions = {};
+    state.moodleFlags = {};
+    state.currentMoodleIndex = 0;
+    state.moodleShowAll = false;
     state.currentSession = {
         category: 'weak_topics',
         startTime: new Date().toISOString(),
         mode: state.starMode
     };
     
+    const titleEl = document.getElementById('moodle-quiz-title');
+    if (titleEl) titleEl.innerText = 'Weak Topics Review';
+    const crumbEl = document.getElementById('moodle-deck-crumb');
+    if (crumbEl) crumbEl.innerText = 'Weak Topics';
+    const startedEl = document.getElementById('moodle-started-time');
+    if (startedEl) startedEl.innerText = new Date().toLocaleString();
+    const qCountEl = document.getElementById('moodle-questions-count');
+    if (qCountEl) qCountEl.innerText = weakQuestions.length + ' questions';
+    updateMoodleScore();
+
     document.getElementById('deck-badge').innerText = 'WEAK TOPICS';
-    renderQuestionList();
     
     views.dashboard.style.display = 'none';
-    views.study.style.display = 'grid';
+    views.study.style.display = 'flex';
     
-    const modeTabs = document.getElementById('study-mode-tabs');
-    if (modeTabs) modeTabs.style.display = 'none';
-    
-    switchStudyTab('solve');
-    
-    state.currentQuestionIndex = 0;
-    loadQuestion(0);
+    syncMoodleStarButtons();
+    renderMoodleFeed();
+    renderMoodleNavButtons();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }

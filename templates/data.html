@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SWT Study Hub — Answer Key</title>
+    <meta name="description" content="Complete answer key for all SWT study decks: Exam, Exercises, Testates, Slides, Mock Exam.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ─── Reset & Base ─────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg:         #0f0f13;
+            --surface:    #18181f;
+            --card:       #1e1e28;
+            --border:     rgba(255,255,255,.08);
+            --text:       #e8e8f0;
+            --muted:      #8888a8;
+            --accent:     #6c63ff;
+            --accent2:    #00c9a7;
+            --correct:    #10b981;
+            --warn:       #f59e0b;
+            --tab-active: #6c63ff;
+            --radius:     12px;
+            --shadow:     0 4px 24px rgba(0,0,0,.4);
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* ─── Header ───────────────────────────────────────── */
+        .data-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 28px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+        }
+        .data-header-left { display: flex; align-items: center; gap: 16px; }
+        .data-logo {
+            width: 46px; height: 46px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+        }
+        .data-title { font-size: 22px; font-weight: 700; letter-spacing: -.3px; }
+        .data-subtitle { font-size: 13px; color: var(--muted); margin-top: 2px; }
+        .data-header-right { display: flex; align-items: center; gap: 12px; }
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,.07);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all .2s;
+        }
+        .back-btn:hover { background: rgba(255,255,255,.12); border-color: var(--accent); }
+        .search-wrap {
+            position: relative;
+        }
+        .search-wrap i {
+            position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+            color: var(--muted); font-size: 14px;
+        }
+        #search-input {
+            background: rgba(255,255,255,.06);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 14px 8px 36px;
+            color: var(--text);
+            font-size: 14px;
+            font-family: inherit;
+            width: 260px;
+            transition: all .2s;
+        }
+        #search-input:focus { outline: none; border-color: var(--accent); background: rgba(255,255,255,.1); }
+        #search-input::placeholder { color: var(--muted); }
+
+        /* ─── Tabs ──────────────────────────────────────────── */
+        .tabs-bar {
+            display: flex;
+            gap: 4px;
+            padding: 16px 40px 0;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+            overflow-x: auto;
+        }
+        .tab-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 20px;
+            border: none;
+            border-bottom: 3px solid transparent;
+            background: transparent;
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all .2s;
+            white-space: nowrap;
+            border-radius: 8px 8px 0 0;
+        }
+        .tab-btn:hover { color: var(--text); background: rgba(255,255,255,.04); }
+        .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(108,99,255,.08); }
+        .tab-count {
+            background: rgba(108,99,255,.2);
+            color: var(--accent);
+            border-radius: 20px;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .tab-btn.active .tab-count { background: var(--accent); color: #fff; }
+
+        /* ─── Content ───────────────────────────────────────── */
+        .content-area { padding: 32px 40px; max-width: 1200px; margin: 0 auto; }
+
+        /* Stats bar */
+        .stats-bar {
+            display: flex; gap: 16px; flex-wrap: wrap;
+            margin-bottom: 28px;
+        }
+        .stat-chip {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 20px;
+            display: flex; align-items: center; gap: 10px;
+            font-size: 14px;
+        }
+        .stat-chip i { color: var(--accent); font-size: 16px; }
+        .stat-val { font-weight: 700; font-size: 18px; color: var(--text); }
+        .stat-lbl { color: var(--muted); font-size: 12px; }
+
+        /* Filter bar */
+        .filter-bar {
+            display: flex; gap: 10px; flex-wrap: wrap;
+            margin-bottom: 24px; align-items: center;
+        }
+        .filter-label { color: var(--muted); font-size: 13px; }
+        .filter-btn {
+            padding: 5px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--muted);
+            font-size: 12px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all .2s;
+        }
+        .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+        .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+        /* Section headers (exercises grouping) */
+        .section-header {
+            display: flex; align-items: center; gap: 10px;
+            margin: 28px 0 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .section-header h3 {
+            font-size: 15px; font-weight: 600; color: var(--muted);
+        }
+        .section-header .section-count {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 2px 8px;
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        /* ─── Question Cards ────────────────────────────────── */
+        .q-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(520px, 1fr));
+            gap: 16px;
+        }
+        @media (max-width: 700px) { .q-grid { grid-template-columns: 1fr; } }
+
+        .q-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: border-color .2s, transform .2s, box-shadow .2s;
+        }
+        .q-card:hover {
+            border-color: rgba(108,99,255,.4);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        .q-card-head {
+            padding: 14px 18px;
+            background: rgba(255,255,255,.03);
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .q-badge {
+            background: var(--accent);
+            color: #fff;
+            border-radius: 6px;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .q-badge.mc    { background: #6c63ff; }
+        .q-badge.open  { background: #0ea5e9; }
+        .q-badge.def   { background: #8b5cf6; }
+        .q-meta { color: var(--muted); font-size: 12px; }
+        .q-pts {
+            margin-left: auto;
+            background: rgba(16,185,129,.15);
+            color: var(--correct);
+            border-radius: 6px;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .q-card-body { padding: 16px 18px; }
+        .q-question {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 12px;
+            line-height: 1.55;
+        }
+
+        /* MC options */
+        .q-options { list-style: none; display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+        .q-option {
+            display: flex; align-items: flex-start; gap: 8px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,.02);
+            font-size: 13px;
+            color: var(--muted);
+            transition: background .15s;
+        }
+        .q-option.correct-opt {
+            border-color: rgba(16,185,129,.4);
+            background: rgba(16,185,129,.08);
+            color: var(--text);
+        }
+        .q-option.correct-opt .opt-check { color: var(--correct); }
+        .opt-check { font-size: 12px; flex-shrink: 0; margin-top: 2px; opacity: 0; }
+        .q-option.correct-opt .opt-check { opacity: 1; }
+        .opt-label { font-weight: 600; flex-shrink: 0; color: var(--accent); }
+
+        /* Answer block */
+        .q-answer {
+            margin-top: 10px;
+            padding: 12px 14px;
+            background: rgba(16,185,129,.06);
+            border: 1px solid rgba(16,185,129,.2);
+            border-radius: 8px;
+        }
+        .q-answer-label {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 11px; font-weight: 600; color: var(--correct);
+            text-transform: uppercase; letter-spacing: .5px;
+            margin-bottom: 6px;
+        }
+        .q-answer-text { font-size: 13px; color: var(--text); line-height: 1.55; }
+
+        /* Hint block */
+        .q-hint {
+            margin-top: 8px;
+            padding: 10px 12px;
+            background: rgba(245,158,11,.05);
+            border: 1px solid rgba(245,158,11,.15);
+            border-radius: 8px;
+            display: flex; gap: 8px; align-items: flex-start;
+        }
+        .q-hint i { color: var(--warn); font-size: 13px; flex-shrink: 0; margin-top: 2px; }
+        .q-hint-text { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+        /* Definition cards (slides) */
+        .def-term {
+            font-size: 16px; font-weight: 700; color: var(--accent);
+            margin-bottom: 8px;
+        }
+        .def-chapter {
+            font-size: 11px; color: var(--muted);
+            margin-bottom: 12px;
+        }
+        .def-body { font-size: 13px; color: var(--text); line-height: 1.6; }
+        .def-example {
+            margin-top: 10px;
+            padding: 10px 12px;
+            background: rgba(0,201,167,.06);
+            border: 1px solid rgba(0,201,167,.2);
+            border-radius: 8px;
+            font-size: 12px; color: var(--muted);
+        }
+        .def-example strong { color: var(--accent2); }
+
+        /* Empty / no-results */
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--muted);
+        }
+        .no-results i { font-size: 40px; margin-bottom: 16px; opacity: .4; }
+        .no-results p { font-size: 15px; }
+
+        /* Tab panels */
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     HEADER
+════════════════════════════════════════════════ -->
+<header class="data-header">
+    <div class="data-header-left">
+        <div class="data-logo">📚</div>
+        <div>
+            <div class="data-title">Answer Key</div>
+            <div class="data-subtitle">All study deck answers — SWT Study Hub</div>
+        </div>
+    </div>
+    <div class="data-header-right">
+        <div class="search-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="search-input" placeholder="Search questions or answers…" oninput="filterCards()">
+        </div>
+        <a href="/" class="back-btn">
+            <i class="fa-solid fa-arrow-left"></i> Back to Hub
+        </a>
+    </div>
+</header>
+
+<!-- ══════════════════════════════════════════════
+     TABS
+════════════════════════════════════════════════ -->
+<div class="tabs-bar" id="tabs-bar">
+    <button class="tab-btn active" id="tab-btn-exam" onclick="switchTab('exam')">
+        <i class="fa-solid fa-file-alt"></i> Exam
+        <span class="tab-count" id="tab-count-exam">–</span>
+    </button>
+    <button class="tab-btn" id="tab-btn-exercises" onclick="switchTab('exercises')">
+        <i class="fa-solid fa-pen"></i> Exercises
+        <span class="tab-count" id="tab-count-exercises">–</span>
+    </button>
+    <button class="tab-btn" id="tab-btn-testates" onclick="switchTab('testates')">
+        <i class="fa-solid fa-clipboard-check"></i> Testates / Quizzes
+        <span class="tab-count" id="tab-count-testates">–</span>
+    </button>
+    <button class="tab-btn" id="tab-btn-slides" onclick="switchTab('slides')">
+        <i class="fa-solid fa-book-open"></i> Lecture Slides
+        <span class="tab-count" id="tab-count-slides">–</span>
+    </button>
+    <button class="tab-btn" id="tab-btn-mock_exam" onclick="switchTab('mock_exam')">
+        <i class="fa-solid fa-graduation-cap"></i> Mock Exam
+        <span class="tab-count" id="tab-count-mock_exam">–</span>
+    </button>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     CONTENT
+════════════════════════════════════════════════ -->
+<main class="content-area">
+    <!-- Loading spinner -->
+    <div id="loading" style="text-align:center;padding:80px 0;">
+        <i class="fa-solid fa-spinner fa-spin" style="font-size:32px;color:#6c63ff;"></i>
+        <p style="margin-top:16px;color:#8888a8;">Loading answer key…</p>
+    </div>
+
+    <!-- Stats bar -->
+    <div class="stats-bar" id="stats-bar" style="display:none;"></div>
+
+    <!-- Tab panels (filled by JS) -->
+    <div class="tab-panel active" id="panel-exam"></div>
+    <div class="tab-panel" id="panel-exercises"></div>
+    <div class="tab-panel" id="panel-testates"></div>
+    <div class="tab-panel" id="panel-slides"></div>
+    <div class="tab-panel" id="panel-mock_exam"></div>
+</main>
+
+<script>
+let allData = {};
+let currentTab = 'exam';
+
+// ── Fetch data ───────────────────────────────────────────
+async function init() {
+    try {
+        const res = await fetch('/api/questions');
+        allData = await res.json();
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('stats-bar').style.display = 'flex';
+        buildStats();
+        buildAllPanels();
+        updateTabCounts();
+    } catch (e) {
+        document.getElementById('loading').innerHTML =
+            '<i class="fa-solid fa-circle-exclamation" style="font-size:32px;color:#f87171;"></i>' +
+            '<p style="color:#f87171;margin-top:12px;">Failed to load data. Is the server running?</p>';
+    }
+}
+
+// ── Stats bar ────────────────────────────────────────────
+function buildStats() {
+    const totals = {
+        exam: (allData.exam || []).length,
+        exercises: (allData.exercises || []).length,
+        testates: (allData.testates || []).length,
+        slides: (allData.slides || []).length,
+        mock_exam: (allData.mock_exam || []).length,
+    };
+    const total = Object.values(totals).reduce((a, b) => a + b, 0);
+    const mc = [...(allData.exam||[]), ...(allData.testates||[]), ...(allData.mock_exam||[])]
+        .filter(q => q.type === 'multiple_choice').length;
+
+    const bar = document.getElementById('stats-bar');
+    bar.innerHTML = statChip('fa-database', total, 'Total Q&As') +
+        statChip('fa-list-check', mc, 'Multiple Choice') +
+        statChip('fa-pen-nib', totals.exercises, 'Exercise Answers') +
+        statChip('fa-book-open', totals.slides, 'Definitions');
+}
+function statChip(icon, val, lbl) {
+    return `<div class="stat-chip">
+        <i class="fa-solid ${icon}"></i>
+        <div><div class="stat-val">${val}</div><div class="stat-lbl">${lbl}</div></div>
+    </div>`;
+}
+
+// ── Tab count badges ─────────────────────────────────────
+function updateTabCounts() {
+    ['exam','exercises','testates','slides','mock_exam'].forEach(cat => {
+        const el = document.getElementById('tab-count-' + cat);
+        if (el) el.textContent = (allData[cat] || []).length;
+    });
+}
+
+// ── Build all panels ─────────────────────────────────────
+function buildAllPanels() {
+    buildExamPanel();
+    buildExercisesPanel();
+    buildTestatesPanel();
+    buildSlidesPanel();
+    buildMockPanel();
+}
+
+// ── EXAM ─────────────────────────────────────────────────
+function buildExamPanel() {
+    const qs = allData.exam || [];
+    const panel = document.getElementById('panel-exam');
+    if (!qs.length) { panel.innerHTML = emptyState(); return; }
+    let html = '<div class="q-grid">';
+    qs.forEach((q, i) => { html += renderExamCard(q, i); });
+    html += '</div>';
+    panel.innerHTML = html;
+}
+
+function renderExamCard(q, i) {
+    const isMC = q.type === 'multiple_choice';
+    const correct = q.correct_answer || '';
+    const correctArr = parseCorrectArr(correct);
+    const pts = q.points_max ? q.points_max + ' pts' : '';
+
+    let optionsHtml = '';
+    if (isMC && Array.isArray(q.options)) {
+        optionsHtml = '<ul class="q-options">';
+        q.options.forEach(opt => {
+            const label = opt.substring(0, 3).trim();
+            const isCorrect = correctArr.some(c => opt.toLowerCase().startsWith(c.toLowerCase()));
+            optionsHtml += `<li class="q-option ${isCorrect ? 'correct-opt' : ''}">
+                <i class="fa-solid fa-check opt-check"></i>
+                <span>${escHtml(opt)}</span>
+            </li>`;
+        });
+        optionsHtml += '</ul>';
+    }
+
+    const answerHtml = isMC
+        ? `<div class="q-answer">
+              <div class="q-answer-label"><i class="fa-solid fa-circle-check"></i> Correct: ${escHtml(Array.isArray(q.correct_answer) ? q.correct_answer.join(', ') : q.correct_answer)}</div>
+           </div>`
+        : `<div class="q-answer">
+              <div class="q-answer-label"><i class="fa-solid fa-circle-check"></i> Answer</div>
+              <div class="q-answer-text">${escHtml(correct)}</div>
+           </div>`;
+
+    return `<div class="q-card" data-search="${escAttr(q.question)} ${escAttr(correct)}">
+        <div class="q-card-head">
+            <span class="q-badge ${isMC ? 'mc' : 'open'}">${isMC ? 'MC' : 'Open'}</span>
+            <span class="q-meta">${escHtml(q.id || '')}</span>
+            ${pts ? `<span class="q-pts">${escHtml(pts)}</span>` : ''}
+        </div>
+        <div class="q-card-body">
+            <p class="q-question">${escHtml(q.question || '')}</p>
+            ${optionsHtml}
+            ${answerHtml}
+            ${hintHtml(q.hint)}
+        </div>
+    </div>`;
+}
+
+// ── EXERCISES ────────────────────────────────────────────
+function buildExercisesPanel() {
+    const qs = allData.exercises || [];
+    const panel = document.getElementById('panel-exercises');
+    if (!qs.length) { panel.innerHTML = emptyState(); return; }
+
+    // Group by sheet
+    const groups = {};
+    qs.forEach(q => {
+        const key = q.sheet || 'Other';
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(q);
+    });
+
+    let html = '';
+    Object.entries(groups).forEach(([sheet, list]) => {
+        html += `<div class="section-header">
+            <i class="fa-solid fa-layer-group" style="color:#6c63ff"></i>
+            <h3>${escHtml(sheet)}</h3>
+            <span class="section-count">${list.length} questions</span>
+        </div>
+        <div class="q-grid">`;
+        list.forEach(q => { html += renderExerciseCard(q); });
+        html += '</div>';
+    });
+    panel.innerHTML = html;
+}
+
+function renderExerciseCard(q) {
+    return `<div class="q-card" data-search="${escAttr(q.question)} ${escAttr(q.correct_answer)}">
+        <div class="q-card-head">
+            <span class="q-badge open">Open</span>
+            <span class="q-meta">${escHtml(q.task_title || q.id || '')}</span>
+        </div>
+        <div class="q-card-body">
+            <p class="q-question">${escHtml(q.question || '')}</p>
+            <div class="q-answer">
+                <div class="q-answer-label"><i class="fa-solid fa-circle-check"></i> Answer</div>
+                <div class="q-answer-text">${escHtml(q.correct_answer || '')}</div>
+            </div>
+            ${hintHtml(q.hint)}
+        </div>
+    </div>`;
+}
+
+// ── TESTATES ─────────────────────────────────────────────
+function buildTestatesPanel() {
+    const qs = allData.testates || [];
+    const panel = document.getElementById('panel-testates');
+    if (!qs.length) { panel.innerHTML = emptyState(); return; }
+
+    // Group by quiz_name
+    const groups = {};
+    qs.forEach(q => {
+        const key = q.quiz_name || 'Other';
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(q);
+    });
+
+    let html = '';
+    Object.entries(groups).forEach(([quiz, list]) => {
+        html += `<div class="section-header">
+            <i class="fa-solid fa-clipboard-check" style="color:#6c63ff"></i>
+            <h3>${escHtml(quiz)}</h3>
+            <span class="section-count">${list.length} questions</span>
+        </div>
+        <div class="q-grid">`;
+        list.forEach(q => { html += renderExamCard(q, 0); });
+        html += '</div>';
+    });
+    panel.innerHTML = html;
+}
+
+// ── SLIDES / DEFINITIONS ─────────────────────────────────
+function buildSlidesPanel() {
+    const qs = allData.slides || [];
+    const panel = document.getElementById('panel-slides');
+    if (!qs.length) { panel.innerHTML = emptyState(); return; }
+
+    // Group by chapter
+    const groups = {};
+    qs.forEach(q => {
+        const key = q.chapter || 'Other';
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(q);
+    });
+
+    let html = '';
+    Object.entries(groups).forEach(([ch, list]) => {
+        html += `<div class="section-header">
+            <i class="fa-solid fa-bookmark" style="color:#8b5cf6"></i>
+            <h3>${escHtml(ch)}</h3>
+            <span class="section-count">${list.length} terms</span>
+        </div>
+        <div class="q-grid">`;
+        list.forEach(q => { html += renderSlideCard(q); });
+        html += '</div>';
+    });
+    panel.innerHTML = html;
+}
+
+function renderSlideCard(q) {
+    const ex = q.example && q.example !== 'None'
+        ? `<div class="def-example"><strong>Example:</strong> ${escHtml(q.example)}</div>`
+        : '';
+    return `<div class="q-card" data-search="${escAttr(q.term)} ${escAttr(q.definition)}">
+        <div class="q-card-head">
+            <span class="q-badge def">Definition</span>
+            <span class="q-meta">${escHtml(q.id || '')}</span>
+        </div>
+        <div class="q-card-body">
+            <div class="def-term">${escHtml(q.term || '')}</div>
+            <div class="def-chapter">${escHtml(q.chapter || '')}</div>
+            <div class="def-body">${escHtml(q.definition || '')}</div>
+            ${ex}
+            ${hintHtml(q.hint)}
+        </div>
+    </div>`;
+}
+
+// ── MOCK EXAM ────────────────────────────────────────────
+function buildMockPanel() {
+    const qs = allData.mock_exam || [];
+    const panel = document.getElementById('panel-mock_exam');
+    if (!qs.length) { panel.innerHTML = emptyState(); return; }
+    let html = '<div class="q-grid">';
+    qs.forEach((q, i) => { html += renderExamCard(q, i); });
+    html += '</div>';
+    panel.innerHTML = html;
+}
+
+// ── Tab switching ─────────────────────────────────────────
+function switchTab(cat) {
+    currentTab = cat;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-btn-' + cat).classList.add('active');
+    document.getElementById('panel-' + cat).classList.add('active');
+    filterCards();
+}
+
+// ── Search / filter ───────────────────────────────────────
+function filterCards() {
+    const q = document.getElementById('search-input').value.toLowerCase().trim();
+    const panel = document.getElementById('panel-' + currentTab);
+    if (!panel) return;
+    let visible = 0;
+    panel.querySelectorAll('.q-card').forEach(card => {
+        const text = (card.dataset.search || '').toLowerCase();
+        const show = !q || text.includes(q);
+        card.style.display = show ? '' : 'none';
+        if (show) visible++;
+    });
+    // Show no-results if none match
+    let nr = panel.querySelector('.no-results-search');
+    if (!visible && q) {
+        if (!nr) {
+            nr = document.createElement('div');
+            nr.className = 'no-results no-results-search';
+            nr.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i><p>No matches for "<strong>' + escHtml(q) + '</strong>"</p>';
+            panel.appendChild(nr);
+        }
+        nr.style.display = '';
+    } else if (nr) {
+        nr.style.display = 'none';
+    }
+}
+
+// ── Helpers ───────────────────────────────────────────────
+function hintHtml(hint) {
+    if (!hint || hint === 'None') return '';
+    return `<div class="q-hint">
+        <i class="fa-solid fa-lightbulb"></i>
+        <span class="q-hint-text">${escHtml(hint)}</span>
+    </div>`;
+}
+
+// ── Escaping ─────────────────────────────────────────────
+function escHtml(str) {
+    return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+function escAttr(str) {
+    return String(str || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function emptyState() {
+    return `<div class="no-results">
+        <i class="fa-solid fa-inbox"></i>
+        <p>No data found for this category.</p>
+    </div>`;
+}
+
+function parseCorrectArr(val) {
+    if (Array.isArray(val)) return val.map(v => v.trim().toLowerCase());
+    try {
+        const parsed = JSON.parse(val.replace(/'/g, '"'));
+        if (Array.isArray(parsed)) return parsed.map(v => v.trim().toLowerCase());
+    } catch {}
+    return val ? [val.trim().toLowerCase()] : [];
+}
+
+init();
+</script>
+</body>
+</html>

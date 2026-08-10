@@ -46,6 +46,11 @@ def load_data():
 def index():
     return render_template("index.html")
 
+@app.route('/data')
+def data_view():
+    return render_template("data.html")
+
+
 @app.route('/api/questions')
 def get_questions():
     data = load_data()
