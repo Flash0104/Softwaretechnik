@@ -233,7 +233,19 @@ async function saveProgress() {
 //  QUESTIONS — try Firestore, fall back to /api/questions
 // ============================================================
 async function fetchQuestions() {
-    // 1. Try Firestore (populated by migration script)
+    // 1. Try local Flask API first to get updated question data from study_data.json
+    try {
+        const res = await fetch('/api/questions');
+        if (res.ok) {
+            state.allDecks = await res.json();
+            console.log('Questions loaded from API:', state.allDecks);
+            return;
+        }
+    } catch (e) {
+        console.warn('API questions fetch failed, falling back to Firestore:', e);
+    }
+
+    // 2. Fallback: Firestore (populated by migration script)
     if (typeof db !== 'undefined') {
         try {
             const categories = ['exam', 'exercises', 'testates', 'slides', 'mock_exam'];
@@ -247,26 +259,14 @@ async function fetchQuestions() {
             const decks = {};
             results.forEach(({ cat, docs }) => { if (docs.length > 0) decks[cat] = docs; });
 
-            // If Firestore returned at least one populated category, use it
             if (Object.values(decks).some(d => d.length > 0)) {
                 state.allDecks = decks;
-                console.log('Questions loaded from Firestore:', Object.keys(decks).map(k => `${k}:${decks[k].length}`));
+                console.log('Questions loaded from Firestore fallback:', Object.keys(decks).map(k => `${k}:${decks[k].length}`));
                 return;
             }
         } catch (e) {
-            console.warn('Firestore questions load failed, falling back to /api/questions:', e);
+            console.error('Error fetching questions from Firestore:', e);
         }
-    }
-
-    // 2. Fallback: Flask /api/questions (reads study_data.json)
-    try {
-        const res = await fetch('/api/questions');
-        if (res.ok) {
-            state.allDecks = await res.json();
-            console.log('Questions loaded from API fallback:', state.allDecks);
-        }
-    } catch (e) {
-        console.error('Error fetching study database from API:', e);
     }
 }
 
@@ -572,9 +572,9 @@ function renderMoodleFeed() {
         card.appendChild(promptEl);
 
         // Question text
-        const qTextEl = document.createElement('p');
+        const qTextEl = document.createElement('div');
         qTextEl.className = 'moodle-q-text';
-        qTextEl.textContent = questionText;
+        qTextEl.innerHTML = formatContentHTML(questionText);
         card.appendChild(qTextEl);
 
         // ── Input area ──
@@ -615,7 +615,7 @@ function renderMoodleFeed() {
                 cb.innerHTML = '<i class="fa-solid fa-check"></i>';
 
                 const optSpan = document.createElement('span');
-                optSpan.textContent = String(opt).replace(/<[^>]*>/g, '');
+                optSpan.innerHTML = formatContentHTML(opt);
 
                 li.appendChild(cb);
                 li.appendChild(optSpan);
@@ -626,6 +626,7 @@ function renderMoodleFeed() {
             const ta = document.createElement('textarea');
             ta.className = 'moodle-textarea';
             ta.id = 'moodle-textarea-' + idx;
+            ta.rows = 8;
             ta.placeholder = 'Type your detailed answer here...';
             if (savedUserAns) {
                 ta.value = savedUserAns;
@@ -643,8 +644,8 @@ function renderMoodleFeed() {
         hintPanel.id = 'moodle-hint-' + idx;
         hintPanel.style.display = showHint ? 'block' : 'none';
         hintPanel.innerHTML = '<h4><i class="fa-solid fa-lightbulb"></i> Study Hint:</h4>';
-        const hintP = document.createElement('p');
-        hintP.textContent = hintText;
+        const hintP = document.createElement('div');
+        hintP.innerHTML = formatContentHTML(hintText);
         hintPanel.appendChild(hintP);
         card.appendChild(hintPanel);
 
@@ -655,8 +656,8 @@ function renderMoodleFeed() {
         const hasFeedback = savedFeedback && savedFeedback.feedbackText;
         solPanel.style.display = (showSolve || solved || hasFeedback) ? 'block' : 'none';
         solPanel.innerHTML = '<h4><i class="fa-solid fa-circle-check"></i> Reference Solution:</h4>';
-        const solP = document.createElement('p');
-        solP.textContent = solutionText;
+        const solP = document.createElement('div');
+        solP.innerHTML = formatContentHTML(solutionText);
         solPanel.appendChild(solP);
         card.appendChild(solPanel);
 
@@ -952,8 +953,8 @@ function moodleShowGradingResult(idx, score, feedback, correctAnswer, userAns) {
     if (feedbackText) feedbackText.textContent = feedback;
     if (solPanel) {
         solPanel.style.display = 'block';
-        const p = solPanel.querySelector('p');
-        if (p && correctAnswer) p.textContent = correctAnswer.replace(/<[^>]*>/g, '');
+        const solContent = solPanel.querySelector('div') || solPanel.querySelector('p');
+        if (solContent && correctAnswer) solContent.innerHTML = formatContentHTML(correctAnswer);
     }
     if (submitBtn) {
         submitBtn.style.display = 'inline-flex';
@@ -1981,4 +1982,23 @@ function startWeakQuestionsDeck(weakQuestions) {
     renderMoodleFeed();
     renderMoodleNavButtons();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function formatContentHTML(str) {
+    if (!str) return '';
+    let html = String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+
+    // Fenced code blocks ```lang ... ``` or ``` ... ```
+    html = html.replace(/```(?:[a-zA-Z0-9_-]+)?\n?([\s\S]*?)```/g, function(match, code) {
+        return `<pre class="code-snippet"><code>${code.trim()}</code></pre>`;
+    });
+
+    // Inline code `code`
+    html = html.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
+
+    return html;
 }

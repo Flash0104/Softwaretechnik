@@ -857,7 +857,7 @@ header {
 
 .answer-textarea {
     width: 100%;
-    min-height: 140px;
+    min-height: 240px;
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid var(--border-color);
     border-radius: 12px;
@@ -868,6 +868,7 @@ header {
     resize: vertical;
     outline: none;
     transition: all 0.3s ease;
+    white-space: pre-wrap;
 }
 
 .answer-textarea:focus {
@@ -2073,6 +2074,8 @@ header {
     line-height: 1.55;
     color: var(--text-primary);
     margin-bottom: 0.2rem;
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
 .moodle-q-refimage {
@@ -2130,7 +2133,7 @@ header {
 /* Text answer */
 .moodle-textarea {
     width: 100%;
-    min-height: 110px;
+    min-height: 240px;
     background: rgba(255,255,255,0.03);
     border: 1px solid var(--border-color);
     border-radius: 10px;
@@ -2142,6 +2145,7 @@ header {
     outline: none;
     font-family: 'Inter', sans-serif;
     transition: all 0.25s ease;
+    white-space: pre-wrap;
 }
 .moodle-textarea:focus { border-color: var(--color-exam); background: rgba(255,255,255,0.05); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
 [data-theme="light"] .moodle-textarea { background: rgba(0,0,0,0.02); color: var(--text-primary); }
@@ -2159,6 +2163,7 @@ header {
     display: none;
 }
 .moodle-hint-panel h4 { font-weight: 700; margin-bottom: 0.3rem; }
+.moodle-hint-panel p { white-space: pre-wrap; word-break: break-word; }
 
 .moodle-solution-panel {
     background: rgba(16,185,129,0.05);
@@ -2170,7 +2175,7 @@ header {
     display: none;
 }
 .moodle-solution-panel h4 { color: var(--color-success); font-weight: 700; margin-bottom: 0.4rem; }
-.moodle-solution-panel p { color: var(--text-primary); white-space: pre-wrap; }
+.moodle-solution-panel p { color: var(--text-primary); white-space: pre-wrap; word-break: break-word; }
 
 .moodle-feedback-panel {
     border-radius: 10px;

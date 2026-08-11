@@ -286,7 +286,31 @@
             text-transform: uppercase; letter-spacing: .5px;
             margin-bottom: 6px;
         }
-        .q-answer-text { font-size: 13px; color: var(--text); line-height: 1.55; }
+        .q-answer-text { font-size: 13px; color: var(--text); line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
+
+        /* Code snippets */
+        .code-snippet {
+            background: #0d1117;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-left: 3px solid #6c63ff;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin: 10px 0;
+            font-family: 'Fira Code', 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+            font-size: 12.5px;
+            line-height: 1.5;
+            color: #e6edf3;
+            overflow-x: auto;
+            white-space: pre;
+        }
+        .inline-code {
+            background: rgba(110, 118, 129, 0.2);
+            color: #f0f6fc;
+            padding: 0.15em 0.35em;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 88%;
+        }
 
         /* Hint block */
         .q-hint {
@@ -298,7 +322,9 @@
             display: flex; gap: 8px; align-items: flex-start;
         }
         .q-hint i { color: var(--warn); font-size: 13px; flex-shrink: 0; margin-top: 2px; }
-        .q-hint-text { font-size: 12px; color: var(--muted); line-height: 1.5; }
+        .q-hint-text { font-size: 12px; color: var(--muted); line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+        .q-question { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 12px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
+        .def-body { font-size: 13px; color: var(--text); line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
 
         /* Definition cards (slides) */
         .def-term {
@@ -485,6 +511,32 @@ function buildExamPanel() {
     panel.innerHTML = html;
 }
 
+function formatContent(str) {
+    if (!str) return '';
+    let html = String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+
+    // Fenced code blocks ```lang ... ``` or ``` ... ```
+    html = html.replace(/```(?:[a-zA-Z0-9_-]+)?\n?([\s\S]*?)```/g, function(match, code) {
+        return `<pre class="code-snippet"><code>${code.trim()}</code></pre>`;
+    });
+
+    // Code: blocks with line numbers (e.g. Code:\n1 import...)
+    if (!html.includes('<pre class="code-snippet">') && (html.includes('Code:\n1 ') || html.includes('Code:\n1 import'))) {
+        html = html.replace(/Code:\n([\s\S]+?)(?=\n\nErrors|\n\nAssign|\n\nDefinitions|$)/, function(match, code) {
+            return `<strong>Code:</strong><pre class="code-snippet"><code>${code.trim()}</code></pre>`;
+        });
+    }
+
+    // Inline code `code`
+    html = html.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
+
+    return html;
+}
+
 function renderExamCard(q, i) {
     const isMC = q.type === 'multiple_choice';
     const correct = q.correct_answer || '';
@@ -499,7 +551,7 @@ function renderExamCard(q, i) {
             const isCorrect = correctArr.some(c => opt.toLowerCase().startsWith(c.toLowerCase()));
             optionsHtml += `<li class="q-option ${isCorrect ? 'correct-opt' : ''}">
                 <i class="fa-solid fa-check opt-check"></i>
-                <span>${escHtml(opt)}</span>
+                <span>${formatContent(opt)}</span>
             </li>`;
         });
         optionsHtml += '</ul>';
@@ -507,11 +559,11 @@ function renderExamCard(q, i) {
 
     const answerHtml = isMC
         ? `<div class="q-answer">
-              <div class="q-answer-label"><i class="fa-solid fa-circle-check"></i> Correct: ${escHtml(Array.isArray(q.correct_answer) ? q.correct_answer.join(', ') : q.correct_answer)}</div>
+              <div class="q-answer-label"><i class="fa-solid fa-circle-check"></i> Correct: ${formatContent(Array.isArray(q.correct_answer) ? q.correct_answer.join(', ') : q.correct_answer)}</div>
            </div>`
         : `<div class="q-answer">
               <div class="q-answer-label"><i class="fa-solid fa-circle-check"></i> Answer</div>
-              <div class="q-answer-text">${escHtml(correct)}</div>
+              <div class="q-answer-text">${formatContent(correct)}</div>
            </div>`;
 
     return `<div class="q-card" data-search="${escAttr(q.question)} ${escAttr(correct)}">
@@ -521,7 +573,7 @@ function renderExamCard(q, i) {
             ${pts ? `<span class="q-pts">${escHtml(pts)}</span>` : ''}
         </div>
         <div class="q-card-body">
-            <p class="q-question">${escHtml(q.question || '')}</p>
+            <div class="q-question">${formatContent(q.question || '')}</div>
             ${optionsHtml}
             ${answerHtml}
             ${hintHtml(q.hint)}
@@ -564,10 +616,10 @@ function renderExerciseCard(q) {
             <span class="q-meta">${escHtml(q.task_title || q.id || '')}</span>
         </div>
         <div class="q-card-body">
-            <p class="q-question">${escHtml(q.question || '')}</p>
+            <div class="q-question">${formatContent(q.question || '')}</div>
             <div class="q-answer">
                 <div class="q-answer-label"><i class="fa-solid fa-circle-check"></i> Answer</div>
-                <div class="q-answer-text">${escHtml(q.correct_answer || '')}</div>
+                <div class="q-answer-text">${formatContent(q.correct_answer || '')}</div>
             </div>
             ${hintHtml(q.hint)}
         </div>
@@ -632,7 +684,7 @@ function buildSlidesPanel() {
 
 function renderSlideCard(q) {
     const ex = q.example && q.example !== 'None'
-        ? `<div class="def-example"><strong>Example:</strong> ${escHtml(q.example)}</div>`
+        ? `<div class="def-example"><strong>Example:</strong> ${formatContent(q.example)}</div>`
         : '';
     return `<div class="q-card" data-search="${escAttr(q.term)} ${escAttr(q.definition)}">
         <div class="q-card-head">
@@ -642,7 +694,7 @@ function renderSlideCard(q) {
         <div class="q-card-body">
             <div class="def-term">${escHtml(q.term || '')}</div>
             <div class="def-chapter">${escHtml(q.chapter || '')}</div>
-            <div class="def-body">${escHtml(q.definition || '')}</div>
+            <div class="def-body">${formatContent(q.definition || '')}</div>
             ${ex}
             ${hintHtml(q.hint)}
         </div>
@@ -702,7 +754,7 @@ function hintHtml(hint) {
     if (!hint || hint === 'None') return '';
     return `<div class="q-hint">
         <i class="fa-solid fa-lightbulb"></i>
-        <span class="q-hint-text">${escHtml(hint)}</span>
+        <div class="q-hint-text">${formatContent(hint)}</div>
     </div>`;
 }
 
