@@ -1047,15 +1047,15 @@
       "question": "According to the lecture, what are the main objectives of software engineering?",
       "type": "multiple_choice",
       "options": [
-        "(a) To produce software at predictable costs, within predictable timeframes, and with predictable quality.",
-        "(b) To write code as fast as possible without documentation.",
-        "(c) To eliminate the need for project managers and clients.",
-        "(d) To maximize the number of features regardless of budget constraints."
+        "(a) To write as many lines of code as possible in the shortest amount of time.",
+        "(b) To produce software at predictable costs, within predictable timeframes, and with predictable quality.",
+        "(c) To eliminate the need for project managers and architects.",
+        "(d) To focus solely on maximum execution speed regardless of development costs."
       ],
       "correct_answer": [
-        "(a)"
+        "(b)"
       ],
-      "hint": "Think about the three key pillars of predictability in software development: cost, time, and quality.",
+      "hint": "The goal is to move away from chaotic programming toward a disciplined, predictable engineering approach.",
       "image_page": null
     },
     {
@@ -1067,8 +1067,8 @@
       "options": [
         "(a) Verification checks whether the software is developed correctly (e.g., according to the specification).",
         "(b) Validation checks whether the right software is developed (e.g., whether it meets customer expectations).",
-        "(c) Verification checks whether the software meets the user's business needs.",
-        "(d) Validation checks whether the software compiles without errors."
+        "(c) Verification checks whether the system meets the business goals of the company, while validation checks if it compiles without errors.",
+        "(d) Validation is an exclusively manual test process, whereas verification is always fully automated."
       ],
       "correct_answer": [
         "(a)",
@@ -1084,15 +1084,15 @@
       "question": "What is meant by the software quality attribute \"robustness\"?",
       "type": "multiple_choice",
       "options": [
-        "(a) The ease with which software can be modified to correct faults.",
-        "(b) Tolerance towards unspecified operation or unspecified conditions.",
-        "(c) The ratio of the performance level of the software to the amount of resources used.",
-        "(d) The capability of the software product to be transferred from one environment to another."
+        "(a) The speed at which the software executes complex database queries.",
+        "(b) The ability to run the software on any hardware without modifications.",
+        "(c) Tolerance towards unspecified operation or unspecified conditions.",
+        "(d) The complexity of the system architecture and class hierarchy."
       ],
       "correct_answer": [
-        "(b)"
+        "(c)"
       ],
-      "hint": "Robustness determines how well a system handles unexpected inputs or abnormal execution conditions without crashing.",
+      "hint": "Robustness is how gracefully a system handles unexpected inputs or abnormal execution environments.",
       "image_page": null
     },
     {
@@ -1103,14 +1103,14 @@
       "type": "multiple_choice",
       "options": [
         "(a) Adaptive maintenance.",
-        "(b) Perfective maintenance.",
-        "(c) Corrective maintenance.",
+        "(b) Corrective maintenance.",
+        "(c) Perfective maintenance.",
         "(d) Preventive maintenance."
       ],
       "correct_answer": [
-        "(c)"
+        "(b)"
       ],
-      "hint": "This type of maintenance addresses and rectifies diagnosed faults in the software.",
+      "hint": "Fixing errors or faults in the software is known as 'corrective' action.",
       "image_page": null
     },
     {
@@ -1123,14 +1123,14 @@
         "(a) One advantage is that the internal representation can be changed without requiring other modules to be adjusted, as long as the interface remains the same.",
         "(b) The goal is for each module to hide \"secrets\" (e.g., internal implementation details) from other modules.",
         "(c) Access to information is controlled, e.g., via methods or interfaces.",
-        "(d) Information hiding means that the source code is kept confidential from the customer."
+        "(d) Information hiding means that developers must not share their source code with other members of the same development team."
       ],
       "correct_answer": [
         "(a)",
         "(b)",
         "(c)"
       ],
-      "hint": "In software engineering, encapsulation hides internal design and implementation details behind clean, public interfaces.",
+      "hint": "Information hiding is a design principle that uses clean interfaces to isolate module implementation details.",
       "image_page": null
     },
     {
@@ -1143,14 +1143,14 @@
         "(a) One person can take on multiple roles.",
         "(b) One role can be taken on by several people.",
         "(c) A role describes a set of related tasks and authorities.",
-        "(d) Each person in a project must have exactly one unique role and cannot share it."
+        "(d) A role corresponds strictly to a fixed job title and cannot be shared or changed during a project."
       ],
       "correct_answer": [
         "(a)",
         "(b)",
         "(c)"
       ],
-      "hint": "Roles are abstract definitions of responsibilities. There is a many-to-many relationship between actual people and project roles.",
+      "hint": "Roles represent responsibilities rather than static job titles.",
       "image_page": null
     },
     {
@@ -1161,16 +1161,16 @@
       "type": "multiple_choice",
       "options": [
         "(a) The project manager must strike a suitable balance between these dimensions.",
-        "(b) The dimensions are independent of each other and can be optimized individually.",
-        "(c) The dimensions are interdependent.",
-        "(d) It consists of the three target dimensions (often conflicting): schedule, quality, and costs."
+        "(b) The dimensions are interdependent.",
+        "(c) It consists of the three target dimensions (often conflicting): schedule, quality, and costs.",
+        "(d) It consists of three independent teams: development, QA, and sales."
       ],
       "correct_answer": [
         "(a)",
-        "(c)",
-        "(d)"
+        "(b)",
+        "(c)"
       ],
-      "hint": "The three points of the project management triangle are interrelated: changing one dimension inevitably affects the others.",
+      "hint": "Changing one side of the triangle (e.g., reducing costs) inevitably affects the other sides (e.g., quality or schedule).",
       "image_page": null
     },
     {
@@ -1180,22 +1180,22 @@
       "question": "How are constructive and analytical quality assurance measures distinguished?",
       "type": "multiple_choice",
       "options": [
-        "(a) Constructive QA is performed by developers, while analytical QA is only done by clients.",
-        "(b) Constructive QA aims to prevent errors from the outset, while analytical QA aims to find errors that already exist.",
-        "(c) Analytical QA is done before coding starts, and constructive QA is done after release.",
-        "(d) Constructive QA focuses only on budget estimation, and analytical QA focuses on performance testing."
+        "(a) Constructive QA is performed by developers, while analytical QA is only performed by customers.",
+        "(b) Analytical QA is done during the planning phase, and constructive QA is done during the decommissioning phase.",
+        "(c) Constructive QA aims to prevent errors from the outset, while analytical QA aims to find errors that already exist.",
+        "(d) Constructive QA refers to code reviews, while analytical QA refers exclusively to writing unit tests."
       ],
       "correct_answer": [
-        "(b)"
+        "(c)"
       ],
-      "hint": "Think of \"constructive\" as building quality in from the start (prevention) and \"analytical\" as analyzing the product to locate defects (detection).",
+      "hint": "Constructive QA is preventive (e.g., guidelines, templates), while analytical QA is investigative (e.g., testing, inspections).",
       "image_page": null
     },
     {
       "id": "testat_1_q9",
       "category": "Testates / Quizzes",
       "quiz_name": "Testat 1",
-      "question": "A development team finds that a new, innovative technology is risky (high probability of problems, high potential damage). Management decides not to use it. This is an example of which risk management strategy?",
+      "question": "A development team finds that a new, innovative technology is risky (high probability of problems, high potential damage). Management decides to completely avoid using this technology. What risk strategy is this?",
       "type": "multiple_choice",
       "options": [
         "(a) Risk avoidance.",
@@ -1206,7 +1206,7 @@
       "correct_answer": [
         "(a)"
       ],
-      "hint": "When you completely eliminate the source of a risk, you are employing a strategy to bypass it entirely.",
+      "hint": "Eliminating the risk source altogether represents a strategy of avoidance.",
       "image_page": null
     },
     {
@@ -1217,133 +1217,215 @@
       "type": "multiple_choice",
       "options": [
         "(a) Project Manager, Developer, Tester.",
-        "(b) Scrum Master, Product Owner, Developer.",
-        "(c) Product Manager, Team Lead, Architect.",
-        "(d) Business Analyst, Scrum Master, Developer."
+        "(b) Scrum Master, Tech Lead, Customer.",
+        "(c) Product Owner, Architect, QA Specialist.",
+        "(d) Scrum Master, Product Owner, Developer."
       ],
       "correct_answer": [
-        "(b)"
+        "(d)"
       ],
-      "hint": "Scrum defines exactly three essential accountabilities/roles to deliver product increments.",
+      "hint": "The official Scrum Guide defines exactly three key roles within a Scrum team.",
       "image_page": null
     },
     {
-      "id": "testat_2_page_1",
+      "id": "testat_2_q1",
       "category": "Testates / Quizzes",
       "quiz_name": "Testat 2 (Scanned Sheet)",
-      "question": "Testat 2 — Page 1 (Tasks 1 & 2):\n\nTask 1: Which of the following requirements is typically classified as quality requirements (non-functional requirements)?\nTask 2: What tasks or responsibilities does the Product Owner have in Scrum?",
+      "question": "Aufgabe 1: Which of the following requirements is typically classified as quality requirements (non-functional requirements)?",
       "type": "multiple_choice",
       "options": [
-        "(a) Task 1: The delay between key press and display must be less than 0.1 seconds.",
-        "(b) Task 1: When two devices are in range, they need to exchange IDs.",
-        "(c) Task 1: The app should be available 99.999% of the time.",
-        "(d) Task 2: Definition of User Stories and Epics (together with the team)",
-        "(e) Task 2: Representation of Stakeholder Interests",
-        "(f) Task 2: Decision on items for the next release & Product Backlog Management"
+        "(a) The delay between key press and display must be less than 0.1 seconds.",
+        "(b) When two devices are in range, they need to exchange IDs.",
+        "(c) The app should be available 99.999% of the time.",
+        "(d) The development costs must not exceed 0.5 million euros.",
+        "(e) The system must automatically generate a report at the end of the month."
       ],
       "correct_answer": [
         "(a)",
-        "(c)",
-        "(d)",
-        "(e)",
-        "(f)"
+        "(c)"
       ],
-      "hint": "Task 1: Performance (<0.1s) & availability (99.999%) are non-functional. Task 2: Product Owner defines user stories, represents stakeholders, decides release items, and manages the Product Backlog.",
+      "hint": "Latency (<0.1s) and availability (99.999%) are non-functional (quality) requirements.",
       "image_page": "testate_2_page_1.png"
     },
     {
-      "id": "testat_2_page_2",
+      "id": "testat_2_q2",
       "category": "Testates / Quizzes",
       "quiz_name": "Testat 2 (Scanned Sheet)",
-      "question": "Testat 2 — Page 2 (Tasks 3 & 4):\n\nTask 3: What distinguishes software architecture from software design?\nTask 4: What are the characteristic features of a Service-Oriented Architecture (SOA)?",
+      "question": "Aufgabe 2: What tasks or responsibilities does the Product Owner have in Scrum (Agile Development Method)?",
       "type": "multiple_choice",
       "options": [
-        "(a) Task 3: Architecture deals with the fundamental organization and structure of the system (\"Big Picture\").",
-        "(b) Task 3: Design deals with internal details such as algorithms and data structures.",
-        "(c) Task 4: Communication often occurs through standard protocols such as HTTP, SOAP, or REST.",
-        "(d) Task 4: The coupling is loosely done through service contracts.",
-        "(e) Task 4: Applications often arise through the orchestration (linking) of existing services.",
-        "(f) Task 4: Services must necessarily all be written in the same programming language."
+        "(a) Moderation of the Daily Scrum Meetings",
+        "(b) Definition of User Stories and Epics (together with the team)",
+        "(c) Technical implementation of the tasks",
+        "(d) Representation of Stakeholder Interests",
+        "(e) Decision on items for the next release",
+        "(f) Product Backlog Management"
       ],
       "correct_answer": [
-        "(a)",
         "(b)",
-        "(c)",
-        "(d)",
-        "(e)"
-      ],
-      "hint": "Task 3: Architecture is the high-level structure ('Big Picture'), Design is internal details (algorithms/data structures). Task 4: SOA features standard protocols (HTTP/REST), loose coupling via service contracts, and service orchestration.",
-      "image_page": "testate_2_page_2.png"
-    },
-    {
-      "id": "testat_2_page_3",
-      "category": "Testates / Quizzes",
-      "quiz_name": "Testat 2 (Scanned Sheet)",
-      "question": "Testat 2 — Page 3 (Tasks 5 & 6):\n\nTask 5: Which statements about the \"error\" hierarchy (Error, Fault, Failure) are correct?\nTask 6: What rules typically apply to equivalence class testing?",
-      "type": "multiple_choice",
-      "options": [
-        "(a) Task 5: A failure is what the user or tester observes (e.g., incorrect output, crash).",
-        "(b) Task 5: An error by the programmer can lead to a fault in the code.",
-        "(c) Task 5: Debugging is the process of identifying error effects to locate the error state.",
-        "(d) Task 6: For each equivalence class, a single representative is theoretically sufficient, but boundary values are often used.",
-        "(e) Task 6: A test case for invalid equivalence classes should cover only one invalid class to avoid masking effects.",
-        "(f) Task 6: Inputs are divided into groups of similar values assumed to be treated equally by the program."
-      ],
-      "correct_answer": [
-        "(a)",
-        "(b)",
-        "(c)",
         "(d)",
         "(e)",
         "(f)"
       ],
-      "hint": "Task 5: Error (programmer mistake) -> Fault (defect in code) -> Failure (observable malfunction). Debugging locates the fault from the failure. Task 6: Equivalence classes group inputs treated equally; single representative per valid class, single invalid class per test to avoid masking.",
-      "image_page": "testate_2_page_3.png"
+      "hint": "Product Owner defines user stories/epics, represents stakeholders, decides release items, and manages the Product Backlog.",
+      "image_page": "testate_2_page_1.png"
     },
     {
-      "id": "testat_2_page_4",
+      "id": "testat_2_q3",
       "category": "Testates / Quizzes",
       "quiz_name": "Testat 2 (Scanned Sheet)",
-      "question": "Testat 2 — Page 4 (Tasks 7 & 8):\n\nTask 7: Which statements about white-box testing criteria are correct?\nTask 8: Which testing levels are correctly described here?",
+      "question": "Aufgabe 3: What distinguishes software architecture from software design?",
       "type": "multiple_choice",
       "options": [
-        "(a) Task 7: Branch coverage requires that each branch in the control flow graph is traversed at least once.",
-        "(b) Task 7: Loop tests are useful because branch coverage typically does not adequately test loops (e.g., 0 or m iterations).",
-        "(c) Task 8: Integration test: Verifies the interaction between components and interfaces.",
-        "(d) Task 8: Unit Test: Tests the smallest independent code unit (e.g., class/method) in isolation."
+        "(a) Architecture deals with the fundamental organization and structure of the system (\"Big Picture\").",
+        "(b) Architecture answers the question \"how?\" and design answers the question \"what?\".",
+        "(c) Design deals with internal details such as algorithms and data structures.",
+        "(d) Changes to the architecture typically incur lower costs than changes to the design."
       ],
       "correct_answer": [
         "(a)",
+        "(c)"
+      ],
+      "hint": "Architecture is high-level structure (\"Big Picture\"), Design is detailed internal implementation (algorithms/data structures).",
+      "image_page": "testate_2_page_2.png"
+    },
+    {
+      "id": "testat_2_q4",
+      "category": "Testates / Quizzes",
+      "quiz_name": "Testat 2 (Scanned Sheet)",
+      "question": "Aufgabe 4: What are the characteristic features of a Service-Oriented Architecture (SOA)?",
+      "type": "multiple_choice",
+      "options": [
+        "(a) Communication often occurs through standard protocols such as HTTP, SOAP, or REST.",
+        "(b) Services are divided purely technically based on hardware resources.",
+        "(c) The coupling is loosely done through service contracts.",
+        "(d) Applications often arise through the orchestration (linking) of existing services.",
+        "(e) Services must necessarily all be written in the same programming language."
+      ],
+      "correct_answer": [
+        "(a)",
+        "(c)",
+        "(d)"
+      ],
+      "hint": "SOA features standard protocols (HTTP/SOAP/REST), loose coupling via service contracts, and orchestration of services.",
+      "image_page": "testate_2_page_2.png"
+    },
+    {
+      "id": "testat_2_q5",
+      "category": "Testates / Quizzes",
+      "quiz_name": "Testat 2 (Scanned Sheet)",
+      "question": "Aufgabe 5: Which statements about the \"error\" hierarchy (Error, Fault, Failure) are correct?",
+      "type": "multiple_choice",
+      "options": [
+        "(a) An error condition in the code inevitably always immediately leads to an error effect during execution.",
+        "(b) A failure is what the user or tester observes (e.g., incorrect output, crash).",
+        "(c) An error by the programmer can lead to a fault in the code.",
+        "(d) Debugging is the process of identifying error effects to locate the error state."
+      ],
+      "correct_answer": [
         "(b)",
         "(c)",
         "(d)"
       ],
-      "hint": "Task 7: Branch coverage traverses all control flow edges; loop tests check 0/1/m iterations. Task 8: Unit test = isolated smallest code unit; Integration test = interaction between components/interfaces.",
-      "image_page": "testate_2_page_4.png"
+      "hint": "Error (human mistake) -> Fault (defect in code) -> Failure (observable malfunction). Debugging locates faults from observed failures.",
+      "image_page": "testate_2_page_3.png"
     },
     {
-      "id": "testat_2_page_5",
+      "id": "testat_2_q6",
       "category": "Testates / Quizzes",
       "quiz_name": "Testat 2 (Scanned Sheet)",
-      "question": "Testat 2 — Page 5 (Tasks 9 & 10):\n\nTask 9: Which statements about software measurement are correct?\nTask 10: How do reviews and formal inspections differ?",
+      "question": "Aufgabe 6: What rules typically apply to equivalence class testing?",
       "type": "multiple_choice",
       "options": [
-        "(a) Task 9: Metrics are used to manage, understand, and improve projects.",
-        "(b) Task 9: Lines of Code (LOC) is a measure that also counts blank lines and comments.",
-        "(c) Task 9: The measure NCSS (Non-commenting Source Statements) counts only actual code statements and ignores comments.",
-        "(d) Task 10: During a walkthrough, the authors guide the participants through the artifact.",
-        "(e) Task 10: Formal inspections follow a strictly defined process with designated roles (e.g., moderator, recorder).",
-        "(f) Task 10: Formal inspections typically have a higher effectiveness in finding errors compared to informal reviews."
+        "(a) For each equivalence class, a single representative is theoretically sufficient, but often boundary values are used since these are more error-prone.",
+        "(b) A test case for invalid equivalence classes should cover only one invalid class (e.g., to avoid masking effects).",
+        "(c) A test case should always cover as many invalid equivalence classes as possible simultaneously.",
+        "(d) Inputs are divided into groups of similar values, which are assumed to be treated equally by the program."
       ],
       "correct_answer": [
         "(a)",
         "(b)",
-        "(c)",
-        "(d)",
-        "(e)",
-        "(f)"
+        "(d)"
       ],
-      "hint": "Task 9: LOC counts blank lines/comments, while NCSS counts only actual code statements. Task 10: Walkthrough is author-guided; formal inspections have strict process roles (moderator, recorder) and higher defect detection effectiveness without in-meeting solutioning.",
+      "hint": "Equivalence classes divide input spaces into groups treated equally; test 1 representative per valid class, and test only 1 invalid class per test case to prevent masking.",
+      "image_page": "testate_2_page_3.png"
+    },
+    {
+      "id": "testat_2_q7",
+      "category": "Testates / Quizzes",
+      "quiz_name": "Testat 2 (Scanned Sheet)",
+      "question": "Aufgabe 7: Which statements about white-box testing criteria are correct?",
+      "type": "multiple_choice",
+      "options": [
+        "(a) 100% statement coverage is guaranteed to find all errors in the code.",
+        "(b) Branch coverage requires that each branch in the control flow graph is traversed at least once.",
+        "(c) Statement coverage ensures that all branches in the control flow graph are traversed.",
+        "(d) Loop tests are useful because branch coverage typically does not adequately test loops (e.g., 0 or m iterations)."
+      ],
+      "correct_answer": [
+        "(b)",
+        "(d)"
+      ],
+      "hint": "Branch coverage requires traversing all edges in the control flow graph; loop tests verify 0, 1, or multiple loop iterations.",
+      "image_page": "testate_2_page_4.png"
+    },
+    {
+      "id": "testat_2_q8",
+      "category": "Testates / Quizzes",
+      "quiz_name": "Testat 2 (Scanned Sheet)",
+      "question": "Aufgabe 8: Which testing levels are correctly described here?",
+      "type": "multiple_choice",
+      "options": [
+        "(a) System test: Checks whether the customer accepts the software (\"Does it solve my problem?\").",
+        "(b) Integration test: Verifies the interaction between components and interfaces.",
+        "(c) Acceptance Test: Tests the entire system against the specification in a production-like environment.",
+        "(d) Unit Test: Tests the smallest independent code unit (e.g., class/method) in isolation."
+      ],
+      "correct_answer": [
+        "(b)",
+        "(d)"
+      ],
+      "hint": "Integration test verifies component/interface interaction; Unit test tests the smallest code unit in isolation.",
+      "image_page": "testate_2_page_4.png"
+    },
+    {
+      "id": "testat_2_q9",
+      "category": "Testates / Quizzes",
+      "quiz_name": "Testat 2 (Scanned Sheet)",
+      "question": "Aufgabe 9: Which statements about software measurement are correct?",
+      "type": "multiple_choice",
+      "options": [
+        "(a) LOC is always a better measure of complexity than NCSS.",
+        "(b) Metrics are used, among other things, to manage, understand, and improve projects.",
+        "(c) Lines of Code (LOC) is a measure that also counts blank lines and comments.",
+        "(d) The measure NCSS (Non-commenting Source Statements) counts only the actual code (statements) and ignores comments."
+      ],
+      "correct_answer": [
+        "(b)",
+        "(c)",
+        "(d)"
+      ],
+      "hint": "Metrics help manage projects. LOC counts blank lines & comments; NCSS counts actual code statements only.",
+      "image_page": "testate_2_page_5.png"
+    },
+    {
+      "id": "testat_2_q10",
+      "category": "Testates / Quizzes",
+      "quiz_name": "Testat 2 (Scanned Sheet)",
+      "question": "Aufgabe 10: How do reviews and formal inspections differ?",
+      "type": "multiple_choice",
+      "options": [
+        "(a) During a formal inspection, solutions for detected errors are discussed and resolved directly in the meeting.",
+        "(b) During a walkthrough, the authors guide the participants through the artifact.",
+        "(c) Formal inspections follow a strictly defined process with designated roles (e.g., moderator, recorder).",
+        "(d) Formal inspections typically have a higher effectiveness in finding errors compared to informal reviews."
+      ],
+      "correct_answer": [
+        "(b)",
+        "(c)",
+        "(d)"
+      ],
+      "hint": "Walkthrough is author-guided; formal inspections have strict process roles (moderator, recorder) and higher error detection efficiency without in-meeting solutioning.",
       "image_page": "testate_2_page_5.png"
     },
     {

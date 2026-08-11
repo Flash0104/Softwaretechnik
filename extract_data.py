@@ -196,39 +196,10 @@ def parse_testates():
     
     all_testates = []
     
-    # Process Testat 1
-    if os.path.exists(t1_path):
-        print(f"\nParsing Testat 1: {t1_path}...")
-        t1_text = extract_text_from_pdf(t1_path)
-        prompt = f"""
-        Extract all Testat questions and answers from the following text.
-        CRITICAL: Translate any German text to English. Output must be 100% in English.
-        CRITICAL: All questions MUST be formatted as Multiple Choice Questions (type: "multiple_choice").
-        If a question in the source text does not have multiple-choice options, you MUST generate 3 plausible but incorrect distractor options, creating a list of 4 options total (labeled "(a) ...", "(b) ...", "(c) ...", "(d) ...") in English. 
-        The correct_answer must be a list containing the correct option label(s) (e.g. ["(b)"] or ["(b)", "(d)"]).
-        
-        {t1_text}
-        
-        For each question, output:
-        1. "id": e.g. "testat_1_q1"
-        2. "category": "Testates / Quizzes"
-        3. "quiz_name": "Testat 1"
-        4. "question": The question text in English.
-        5. "type": "multiple_choice"
-        6. "options": A list of 4 options containing the correct answer(s) and generated distractors (e.g. ["(a) ...", "(b) ...", "(c) ...", "(d) ..."]).
-        7. "correct_answer": A list of the correct option label(s) (e.g. ["(b)"] or ["(a)", "(c)"]).
-        8. "hint": A helpful hint in English.
-        9. "image_page": null
-        
-        Return a JSON array of objects.
-        """
-        data = call_gemini_json_http(prompt, "Extract Testat Q&A to JSON in English.")
-        if data:
-            all_testates.extend(data)
-            print(f"  Extracted {len(data)} Testat 1 questions.")
-        else:
-            # Fallback for Testat 1
-            all_testates.extend(get_testat1_fallback())
+    # Process Testat 1 (using deterministic static dataset to ensure options alignment)
+    print("\nParsing Testat 1...")
+    all_testates.extend(get_testat1_fallback())
+    print(f"  Extracted {len(get_testat1_fallback())} Testat 1 questions.")
             
     # Process Pingo Quiz
     if os.path.exists(pingo_path):
@@ -894,32 +865,160 @@ def get_testat1_fallback():
             "id": "testat_1_q1",
             "category": "Testates / Quizzes",
             "quiz_name": "Testat 1",
-            "question": "According to the lecture, what are the main objectives of software engineering? (Select all that apply)",
+            "question": "According to the lecture, what are the main objectives of software engineering?",
             "type": "multiple_choice",
             "options": [
-                "(a) To produce software with a focus on marketing and aesthetics.",
-                "(b) To produce software at predictable costs.",
-                "(c) To produce software within predictable timeframes.",
-                "(d) To produce software with predictable quality."
+                "(a) To write as many lines of code as possible in the shortest amount of time.",
+                "(b) To produce software at predictable costs, within predictable timeframes, and with predictable quality.",
+                "(c) To eliminate the need for project managers and architects.",
+                "(d) To focus solely on maximum execution speed regardless of development costs."
             ],
-            "correct_answer": ["(b)", "(c)", "(d)"],
-            "hint": "Think about the magic triangle of project management (cost, time, quality).",
+            "correct_answer": ["(b)"],
+            "hint": "The goal is to move away from chaotic programming toward a disciplined, predictable engineering approach.",
+            "image_page": None
+        },
+        {
+            "id": "testat_1_q2",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 1",
+            "question": "Which statements apply to the concepts of verification and validation in the context of software quality?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) Verification checks whether the software is developed correctly (e.g., according to the specification).",
+                "(b) Validation checks whether the right software is developed (e.g., whether it meets customer expectations).",
+                "(c) Verification checks whether the system meets the business goals of the company, while validation checks if it compiles without errors.",
+                "(d) Validation is an exclusively manual test process, whereas verification is always fully automated."
+            ],
+            "correct_answer": ["(a)", "(b)"],
+            "hint": "Verification focuses on meeting specifications ('Are we building the product right?'), while validation focuses on meeting user needs ('Are we building the right product?').",
             "image_page": None
         },
         {
             "id": "testat_1_q3",
             "category": "Testates / Quizzes",
             "quiz_name": "Testat 1",
-            "question": "What is meant by the software quality attribute 'robustness'?",
+            "question": "What is meant by the software quality attribute \"robustness\"?",
             "type": "multiple_choice",
             "options": [
-                "(a) The ability of a program to execute complex math operations fast.",
-                "(b) Tolerance towards unspecified operation or unspecified conditions.",
-                "(c) The size of code modules in the architecture.",
-                "(d) Reusability of classes across different microservices."
+                "(a) The speed at which the software executes complex database queries.",
+                "(b) The ability to run the software on any hardware without modifications.",
+                "(c) Tolerance towards unspecified operation or unspecified conditions.",
+                "(d) The complexity of the system architecture and class hierarchy."
+            ],
+            "correct_answer": ["(c)"],
+            "hint": "Robustness is how gracefully a system handles unexpected inputs or abnormal execution environments.",
+            "image_page": None
+        },
+        {
+            "id": "testat_1_q4",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 1",
+            "question": "A software update is released to fix a bug that causes the application to crash when the user clicks a certain button. What type of maintenance is this?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) Adaptive maintenance.",
+                "(b) Corrective maintenance.",
+                "(c) Perfective maintenance.",
+                "(d) Preventive maintenance."
             ],
             "correct_answer": ["(b)"],
-            "hint": "Remains functional even under non-standard inputs or errors.",
+            "hint": "Fixing errors or faults in the software is known as 'corrective' action.",
+            "image_page": None
+        },
+        {
+            "id": "testat_1_q5",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 1",
+            "question": "Which statements about the principle of \"information hiding\" (encapsulation) are correct?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) One advantage is that the internal representation can be changed without requiring other modules to be adjusted, as long as the interface remains the same.",
+                "(b) The goal is for each module to hide \"secrets\" (e.g., internal implementation details) from other modules.",
+                "(c) Access to information is controlled, e.g., via methods or interfaces.",
+                "(d) Information hiding means that developers must not share their source code with other members of the same development team."
+            ],
+            "correct_answer": ["(a)", "(b)", "(c)"],
+            "hint": "Information hiding is a design principle that uses clean interfaces to isolate module implementation details.",
+            "image_page": None
+        },
+        {
+            "id": "testat_1_q6",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 1",
+            "question": "Which statements about the concept of roles in software engineering, according to the lecture, are correct?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) One person can take on multiple roles.",
+                "(b) One role can be taken on by several people.",
+                "(c) A role describes a set of related tasks and authorities.",
+                "(d) A role corresponds strictly to a fixed job title and cannot be shared or changed during a project."
+            ],
+            "correct_answer": ["(a)", "(b)", "(c)"],
+            "hint": "Roles represent responsibilities rather than static job titles.",
+            "image_page": None
+        },
+        {
+            "id": "testat_1_q7",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 1",
+            "question": "What characterises the \"magic triangle\" in project management?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) The project manager must strike a suitable balance between these dimensions.",
+                "(b) The dimensions are interdependent.",
+                "(c) It consists of the three target dimensions (often conflicting): schedule, quality, and costs.",
+                "(d) It consists of three independent teams: development, QA, and sales."
+            ],
+            "correct_answer": ["(a)", "(b)", "(c)"],
+            "hint": "Changing one side of the triangle (e.g., reducing costs) inevitably affects the other sides (e.g., quality or schedule).",
+            "image_page": None
+        },
+        {
+            "id": "testat_1_q8",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 1",
+            "question": "How are constructive and analytical quality assurance measures distinguished?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) Constructive QA is performed by developers, while analytical QA is only performed by customers.",
+                "(b) Analytical QA is done during the planning phase, and constructive QA is done during the decommissioning phase.",
+                "(c) Constructive QA aims to prevent errors from the outset, while analytical QA aims to find errors that already exist.",
+                "(d) Constructive QA refers to code reviews, while analytical QA refers exclusively to writing unit tests."
+            ],
+            "correct_answer": ["(c)"],
+            "hint": "Constructive QA is preventive (e.g., guidelines, templates), while analytical QA is investigative (e.g., testing, inspections).",
+            "image_page": None
+        },
+        {
+            "id": "testat_1_q9",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 1",
+            "question": "A development team finds that a new, innovative technology is risky (high probability of problems, high potential damage). Management decides to completely avoid using this technology. What risk strategy is this?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) Risk avoidance.",
+                "(b) Risk acceptance.",
+                "(c) Risk mitigation.",
+                "(d) Risk transfer."
+            ],
+            "correct_answer": ["(a)"],
+            "hint": "Eliminating the risk source altogether represents a strategy of avoidance.",
+            "image_page": None
+        },
+        {
+            "id": "testat_1_q10",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 1",
+            "question": "Which three roles are defined by the Scrum methodology?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) Project Manager, Developer, Tester.",
+                "(b) Scrum Master, Tech Lead, Customer.",
+                "(c) Product Owner, Architect, QA Specialist.",
+                "(d) Scrum Master, Product Owner, Developer."
+            ],
+            "correct_answer": ["(d)"],
+            "hint": "The official Scrum Guide defines exactly three key roles within a Scrum team.",
             "image_page": None
         }
     ]
