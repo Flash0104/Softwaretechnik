@@ -235,7 +235,7 @@ async function saveProgress() {
 async function fetchQuestions() {
     // 1. Try local Flask API first to get updated question data from study_data.json
     try {
-        const res = await fetch('/api/questions');
+        const res = await fetch('/api/questions?t=' + Date.now(), { cache: 'no-store' });
         if (res.ok) {
             state.allDecks = await res.json();
             console.log('Questions loaded from API:', state.allDecks);
