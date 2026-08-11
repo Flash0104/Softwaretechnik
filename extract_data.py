@@ -278,18 +278,257 @@ def parse_testates():
             "image_page": f"testate_2_page_{i}.png"
         })
         
-    for i in range(1, 19): # Testat 3 has 18 pages
-        all_testates.append({
-            "id": f"testat_3_page_{i}",
+    testat3_items = [
+        {
+            "id": "testat_3_page_1",
             "category": "Testates / Quizzes",
             "quiz_name": "Testat 3 & Ex 10 (Scanned Sheet)",
-            "question": f"Review and solve the questions on Page {i} of Testat 3.",
-            "type": "image_only",
+            "question": "How can the terms software process, process model, and lifecycle model be distinguished from each other?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) A software process model abstracts from concrete processes and defines roles and types of activities.",
+                "(b) A lifecycle model is an instantiation of a software process.",
+                "(c) A software process corresponds to the actual execution of software development.",
+                "(d) The boundary between lifecycle model and process model is always clearly defined."
+            ],
+            "correct_answer": ["(a)", "(c)"],
+            "hint": "Software process = actual execution; process model = abstraction and definition of roles/activities.",
+            "image_page": "testate_3_page_1.png"
+        },
+        {
+            "id": "testat_3_page_2",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 3 & Ex 10 (Scanned Sheet)",
+            "question": "Which statements about the waterfall model are correct?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) A key assumption is that feedback is possible to any preceding phase.",
+                "(b) It explicitly takes into account the need for feedback.",
+                "(c) The coupling between phases occurs primarily through the exchange of documents/artifacts.",
+                "(d) It supports the parallel development of different phases."
+            ],
+            "correct_answer": ["(b)", "(c)"],
+            "hint": "The waterfall model explicitly considers feedback (typically to the adjacent preceding phase) and couples phases through document exchange.",
+            "image_page": "testate_3_page_2.png"
+        },
+        {
+            "id": "testat_3_page_3",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 3 & Ex 10 (Scanned Sheet)",
+            "question": "What do the axes in the classic V-model represent?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) The horizontal axis represents the level of abstraction.",
+                "(b) The vertical axis shows the costs of the project.",
+                "(c) The vertical axis represents abstraction or refinement.",
+                "(d) The horizontal axis represents time or project progress."
+            ],
+            "correct_answer": ["(c)", "(d)"],
+            "hint": "Vertical axis = abstraction/refinement level; horizontal axis = time/project progress.",
+            "image_page": "testate_3_page_3.png"
+        },
+        {
+            "id": "testat_3_page_4",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 3 & Ex 10 (Scanned Sheet)",
+            "question": "What is the significance of the V-Modell XT in practice today?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) In the startup scene, it is preferred due to its speed.",
+                "(b) In regulated industries such as medical technology, the principle of the V-Model XT remains essential.",
+                "(c) It is fundamentally required for IT projects of the German federal administration.",
+                "(d) \"XT\" stands for \"eXtreme Tailoring\" and allows for customization to specific needs."
+            ],
+            "correct_answer": ["(b)", "(c)", "(d)"],
+            "hint": "V-Modell XT is mandatory for German federal administration IT projects, essential in regulated industries like medtech, and XT stands for eXtreme Tailoring.",
+            "image_page": "testate_3_page_4.png"
+        },
+        {
+            "id": "testat_3_page_5",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 3 & Ex 10 (Scanned Sheet)",
+            "question": "What is the purpose of the \"Staging Area\" (Index) in systems like Git?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) It allows you to thoroughly review changes before committing (e.g., via Diff).",
+                "(b) It allows precise control over which changes are included in the next commit.",
+                "(c) It serves as a permanent archive for deleted files.",
+                "(d) It is essential to perform a rebase."
+            ],
+            "correct_answer": ["(a)", "(b)"],
+            "hint": "The staging area allows reviewing changes prior to committing and selecting specific modifications for the commit.",
+            "image_page": "testate_3_page_5.png"
+        },
+        {
+            "id": "testat_3_page_6",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 3 & Ex 10 (Scanned Sheet)",
+            "question": "What are the essential differences between \"Merge\" and \"Rebase\" in version control?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) Rebasing is safer than merging because conflicts can never occur.",
+                "(b) A rebase places your own commits at the end of another branch.",
+                "(c) A merge results in a new \"merge commit\" that combines two branches.",
+                "(d) A rebase creates a clean, linear history of commits without additional merge commits."
+            ],
+            "correct_answer": ["(b)", "(c)", "(d)"],
+            "hint": "Merge creates a merge commit, whereas Rebase replays commits on top of another branch creating a clean linear history.",
+            "image_page": "testate_3_page_6.png"
+        },
+        {
+            "id": "testat_3_page_7",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 3 & Ex 10 (Scanned Sheet)",
+            "question": "Which values are prioritized in the Agile Manifesto?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) Contract negotiations carry more weight than collaboration with the customer.",
+                "(b) Working software is valued more than comprehensive documentation.",
+                "(c) Processes and tools are valued more than individuals and interactions.",
+                "(d) Responding to change is prioritized over following a plan."
+            ],
+            "correct_answer": ["(b)", "(d)"],
+            "hint": "Agile Manifesto prioritizes working software over comprehensive documentation and responding to change over following a plan.",
+            "image_page": "testate_3_page_7.png"
+        },
+        {
+            "id": "testat_3_page_8",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 3 & Ex 10 (Scanned Sheet)",
+            "question": "What is the difference between a Sprint Review and a Sprint Retrospective?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) In the Sprint Review, the Sprint results are evaluated.",
+                "(b) The sprint retrospective is used to reflect on the process and identify improvements for the team.",
+                "(c) In the sprint retrospective, a live demo of the software is primarily shown.",
+                "(d) The Sprint Review takes place at the beginning of a sprint, the Sprint Retrospective at the end."
+            ],
+            "correct_answer": ["(a)", "(b)"],
+            "hint": "Sprint Review evaluates sprint results/increment, while Sprint Retrospective reflects on team process and continuous improvements.",
+            "image_page": "testate_3_page_8.png"
+        },
+        {
+            "id": "testat_3_page_9",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 3 & Ex 10 (Scanned Sheet)",
+            "question": "Which principles are part of the \"Engineering Practices\" of Extreme Programming (XP)?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) Big Up-front Design",
+                "(b) Pair Programming",
+                "(c) Continuous refactoring",
+                "(d) Test Driven Development (TDD)"
+            ],
+            "correct_answer": ["(b)", "(c)", "(d)"],
+            "hint": "XP Engineering Practices include Pair Programming, Continuous Refactoring, and Test Driven Development (TDD).",
+            "image_page": "testate_3_page_9.png"
+        },
+        {
+            "id": "testat_3_page_10",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 3 & Ex 10 (Scanned Sheet)",
+            "question": "Which statements about the CI/CD pipeline and its components are correct?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) Continuous Integration (CI) alone can already guarantee the complete functional correctness of software.",
+                "(b) Continuous Integration (CI) facilitates parallel development and helps to identify errors more quickly by merging code at an early stage.",
+                "(c) Continuous Deployment (CD) involves the automated installation (deployment) of the runnable software version in the production environment.",
+                "(d) Automated tests are an essential part of the pipeline to ensure the functionality and quality of a release."
+            ],
+            "correct_answer": ["(b)", "(c)", "(d)"],
+            "hint": "CI enables parallel development and early defect detection, CD automates production deployments, and automated testing ensures release quality.",
+            "image_page": "testate_3_page_10.png"
+        },
+        {
+            "id": "testat_3_page_11",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 3 & Ex 10 (Scanned Sheet)",
+            "question": "Exercise Sheet No. 10 - Task 10.1: Fundamentals and Definitions\na) Explain the term \"Adaptation\" in the context of software systems and explain the fundamental idea behind it. (3 points)",
+            "type": "open",
             "options": None,
-            "correct_answer": f"Check page {i} of the sheet for correct answers / solutions.",
-            "hint": "Read the scanned solution sheet notes.",
-            "image_page": f"testate_3_page_{i}.png"
-        })
+            "correct_answer": "• Adaptation is an approach for handling uncertainty in software systems.\n• The system collects new knowledge at runtime to:\n  - Resolve uncertainties\n  - Reflect upon itself, its context, and its goals\n  - Modify itself in order to achieve those goals\n  - Learn from past modifications\n• Adaptation enables systems to react autonomously to unforeseen situations without requiring human intervention or a complete re-implementation.",
+            "hint": "Think about runtime knowledge, self-reflection, self-modification, and handling uncertainty without manual intervention.",
+            "image_page": "testate_3_page_11.png"
+        },
+        {
+            "id": "testat_3_page_12",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 3 & Ex 10 (Scanned Sheet)",
+            "question": "Exercise Sheet No. 10 - Task 10.1: Fundamentals and Definitions\nb) Explain the essential difference between adaptation and evolution. Name at least two characteristic features for each. (2 points)",
+            "type": "open",
+            "options": None,
+            "correct_answer": "Adaptation:\n• Short-term, instance-specific modification of the system\n• Addresses immediate, unforeseen problems\n• Does not affect future instances of the software and does not permanently change the system\n• Example: Temporarily adding cloud servers under high load\n\nEvolution:\n• Long-term modification of the software\n• Based on aggregated insights and adaptation patterns collected over time\n• Affects all future instances of the software\n• Example: Permanent code adaptation and redeployment via CI/CD pipeline",
+            "hint": "Adaptation is short-term/instance-specific (e.g. autoscaling under load), whereas evolution is long-term/permanent for all future instances (e.g. code updates via CI/CD).",
+            "image_page": "testate_3_page_12.png"
+        },
+        {
+            "id": "testat_3_page_13",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 3 & Ex 10 (Scanned Sheet)",
+            "question": "Exercise Sheet No. 10 - Task 10.1: Fundamentals and Definitions\nc) Explain the two perspectives on adaptation (external and internal perspective) and how they differ. (3 points)",
+            "type": "open",
+            "options": None,
+            "correct_answer": "• External Perspective: An adaptive system is a system that can handle uncertainty in its environment, in itself, and in its goals autonomously (or with minimal human intervention). This perspective focuses on the observable behavior of the system from the outside.\n• Internal Perspective: An adaptive system consists of two distinct parts:\n  - System Logic: Interacts with the environment and handles the primary domain task of the system.\n  - Adaptation Logic: Interacts with System Logic, monitors execution quality, and adjusts system behavior.\n• Difference: The external perspective describes system behavior from a user's point of view, whereas the internal perspective describes architectural structure and separation of concerns within the system.",
+            "hint": "External perspective = observable behavior from the outside; Internal perspective = architectural separation between System Logic and Adaptation Logic.",
+            "image_page": "testate_3_page_13.png"
+        },
+        {
+            "id": "testat_3_page_14",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 3 & Ex 10 (Scanned Sheet)",
+            "question": "Exercise Sheet No. 10 - Task 10.1: Fundamentals and Definitions\nd) Name the four fundamental types of adaptation and briefly explain the purpose of each. (4 points)",
+            "type": "open",
+            "options": None,
+            "correct_answer": "1. Self-optimization: The capability of a system to seek opportunities to optimize resource utilization while meeting required quality goals.\n2. Self-healing: The capability of a system to discover defects and recover from them to meet required quality goals, or gracefully degrade if full recovery is impossible.\n3. Self-protection: The capability of a system to defend against malicious attacks and anticipate potential disruptions to achieve required quality goals.\n4. Self-configuration: The capability of a system to automatically integrate new components or reconfigure itself without interrupting normal operations.",
+            "hint": "The 4 Self-* properties: Self-optimization (resources), Self-healing (defects), Self-protection (attacks), and Self-configuration (seamless integration).",
+            "image_page": "testate_3_page_14.png"
+        },
+        {
+            "id": "testat_3_page_15",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 3 & Ex 10 (Scanned Sheet)",
+            "question": "Exercise Sheet No. 10 - Task 10.2: MAPE-K Reference Model\na) Explain the MAPE-K reference model for adaptive systems. Describe the role of each of the five components. (5 points)",
+            "type": "open",
+            "options": None,
+            "correct_answer": "The MAPE-K reference model is an architectural model for adaptive systems consisting of five components:\n• Monitor: Collects data from the managed element and execution context. Continuously monitors relevant system states and environmental parameters.\n• Analyze: Determines whether adaptation is necessary and evaluates available options. Assesses collected data and identifies deviations from target goals.\n• Plan: Plans mitigation actions to adapt the managed element when required. Formulates strategies to resolve identified issues.\n• Execute: Executes the plan and adjusts the managed element. Implements planned changes in the system.\n• Knowledge: Abstracts relevant aspects of the managed element, environment, and administrator goals. Provides a shared knowledge base for all other components.\n\nThe model achieves a clear separation of concerns within the adaptation logic.",
+            "hint": "MAPE-K stands for Monitor (data collection), Analyze (evaluating need), Plan (action strategies), Execute (enacting changes), and Knowledge (shared repository).",
+            "image_page": "testate_3_page_15.png"
+        },
+        {
+            "id": "testat_3_page_16",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 3 & Ex 10 (Scanned Sheet)",
+            "question": "Exercise Sheet No. 10 - Task 10.2: MAPE-K Reference Model\nb) Explain why a separation between \"System Logic\" (Managed System) and \"Adaptation Logic\" (Managing System) is sensible in adaptive systems. (4 points)",
+            "type": "open",
+            "options": None,
+            "correct_answer": "• Separation of Concerns: Domain functionality is separated from adaptation concerns (quality and self-management), reducing overall system complexity and increasing maintainability.\n• Modularity: Each part can be developed, tested, and evolved independently.\n• Reusability: The adaptation logic can potentially be reused across different domain systems, while the system logic remains domain-specific.\n• Clear Allocation of Responsibilities: System Logic focuses on delivering core business functionality, while Adaptation Logic focuses on satisfying quality goals under changing conditions.",
+            "hint": "Key reasons: Separation of concerns, modularity, reusability of adaptation mechanisms, and distinct responsibilities.",
+            "image_page": "testate_3_page_16.png"
+        },
+        {
+            "id": "testat_3_page_17",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 3 & Ex 10 (Scanned Sheet)",
+            "question": "Exercise Sheet No. 10 - Task 10.3: Engineering Adaptive Systems\na) Name the four principles for developing adaptive systems presented in the lecture and briefly explain each (1–2 sentences). (4 points)",
+            "type": "open",
+            "options": None,
+            "correct_answer": "1. Architecture-based Adaptation: The system is described using explicit architectural models that are used at runtime for adaptation decisions. This allows adaptations to be made in a structured and traceable manner.\n2. Adaptation with Runtime Models: The system maintains runtime models of itself and its quality aspects to support automated decision-making. These models form the knowledge base for adaptation logic.\n3. Control-based Adaptation: Adaptation is modeled as a feedback control loop where controllers (e.g. PID) continuously measure system states and adjust control variables toward target values. This brings established control-engineering techniques into software development.\n4. AI-based Adaptation: The system utilizes Machine Learning (specifically Reinforcement Learning) to autonomously learn optimal adaptation policies at runtime. This enables adaptation in highly dynamic environments that cannot be fully modeled in advance.",
+            "hint": "The 4 principles: 1. Architecture-based Adaptation, 2. Adaptation mit Runtime Models, 3. Control-based Adaptation (feedback loops), 4. AI-based Adaptation (machine learning).",
+            "image_page": "testate_3_page_17.png"
+        },
+        {
+            "id": "testat_3_page_18",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 3 & Ex 10 (Scanned Sheet)",
+            "question": "Exercise Sheet No. 10 - Task 10.3: Engineering Adaptive Systems\nb) Explain the relationship between the lifecycle model of an adaptive system and a traditional DevOps model. (2 points)",
+            "type": "open",
+            "options": None,
+            "correct_answer": "• Traditional DevOps Model:\n  - Clear separation between DEV (development) and OPS (operations)\n  - Changes require going through the full development cycle (code modification, CI/CD pipeline, deployment)\n  - System evolution occurs via permanent modification and redeployment\n• Adaptive System Lifecycle Model:\n  - Extends DevOps with an additional ADAPT phase\n  - The system can self-observe and self-modify at runtime\n  - Enables rapid, temporary adaptations without triggering a full development and deployment cycle\n  - Combines long-term evolution (via DevOps) with short-term runtime adaptation\n• An adaptive system integrates autonomous runtime self-adaptation capability into the classical development and operations lifecycle.",
+            "hint": "DevOps uses the traditional DEV/OPS cycle for evolution. An adaptive system extends this by integrating an ADAPT loop for autonomous runtime self-observation and self-modification.",
+            "image_page": "testate_3_page_18.png"
+        }
+    ]
+    all_testates.extend(testat3_items)
         
     return all_testates
 
