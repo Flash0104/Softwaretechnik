@@ -262,21 +262,98 @@ def parse_testates():
             all_testates.extend(data)
             print(f"  Extracted {len(data)} Pingo questions.")
             
-    # Add Mock / Reference placeholders for Testat 2 and Testat 3 scanned pages
-    # Since these are scanned, we display their page images in the UI!
-    # Let's add them to the JSON database so the user can select them, view the image page, and self-grade.
-    for i in range(1, 6): # Testat 2 has 5 pages
-        all_testates.append({
-            "id": f"testat_2_page_{i}",
+    # Add Testat 2 scanned pages translated into 100% English multiple choice items
+    testat2_items = [
+        {
+            "id": "testat_2_page_1",
             "category": "Testates / Quizzes",
             "quiz_name": "Testat 2 (Scanned Sheet)",
-            "question": f"Review and solve the questions on Page {i} of Testat 2.",
-            "type": "image_only",
-            "options": None,
-            "correct_answer": f"Check page {i} of the sheet for correct answers / solutions.",
-            "hint": "Analyze the handwritten or marked corrections on the page.",
-            "image_page": f"testate_2_page_{i}.png"
-        })
+            "question": "Testat 2 — Page 1 (Tasks 1 & 2):\n\nTask 1: Which of the following requirements is typically classified as quality requirements (non-functional requirements)?\nTask 2: What tasks or responsibilities does the Product Owner have in Scrum?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) Task 1: The delay between key press and display must be less than 0.1 seconds.",
+                "(b) Task 1: When two devices are in range, they need to exchange IDs.",
+                "(c) Task 1: The app should be available 99.999% of the time.",
+                "(d) Task 2: Definition of User Stories and Epics (together with the team)",
+                "(e) Task 2: Representation of Stakeholder Interests",
+                "(f) Task 2: Decision on items for the next release & Product Backlog Management"
+            ],
+            "correct_answer": ["(a)", "(c)", "(d)", "(e)", "(f)"],
+            "hint": "Task 1: Performance (<0.1s) & availability (99.999%) are non-functional. Task 2: Product Owner defines user stories, represents stakeholders, decides release items, and manages the Product Backlog.",
+            "image_page": "testate_2_page_1.png"
+        },
+        {
+            "id": "testat_2_page_2",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 2 (Scanned Sheet)",
+            "question": "Testat 2 — Page 2 (Tasks 3 & 4):\n\nTask 3: What distinguishes software architecture from software design?\nTask 4: What are the characteristic features of a Service-Oriented Architecture (SOA)?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) Task 3: Architecture deals with the fundamental organization and structure of the system (\"Big Picture\").",
+                "(b) Task 3: Design deals with internal details such as algorithms and data structures.",
+                "(c) Task 4: Communication often occurs through standard protocols such as HTTP, SOAP, or REST.",
+                "(d) Task 4: The coupling is loosely done through service contracts.",
+                "(e) Task 4: Applications often arise through the orchestration (linking) of existing services.",
+                "(f) Task 4: Services must necessarily all be written in the same programming language."
+            ],
+            "correct_answer": ["(a)", "(b)", "(c)", "(d)", "(e)"],
+            "hint": "Task 3: Architecture is the high-level structure ('Big Picture'), Design is internal details (algorithms/data structures). Task 4: SOA features standard protocols (HTTP/REST), loose coupling via service contracts, and service orchestration.",
+            "image_page": "testate_2_page_2.png"
+        },
+        {
+            "id": "testat_2_page_3",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 2 (Scanned Sheet)",
+            "question": "Testat 2 — Page 3 (Tasks 5 & 6):\n\nTask 5: Which statements about the \"error\" hierarchy (Error, Fault, Failure) are correct?\nTask 6: What rules typically apply to equivalence class testing?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) Task 5: A failure is what the user or tester observes (e.g., incorrect output, crash).",
+                "(b) Task 5: An error by the programmer can lead to a fault in the code.",
+                "(c) Task 5: Debugging is the process of identifying error effects to locate the error state.",
+                "(d) Task 6: For each equivalence class, a single representative is theoretically sufficient, but boundary values are often used.",
+                "(e) Task 6: A test case for invalid equivalence classes should cover only one invalid class to avoid masking effects.",
+                "(f) Task 6: Inputs are divided into groups of similar values assumed to be treated equally by the program."
+            ],
+            "correct_answer": ["(a)", "(b)", "(c)", "(d)", "(e)", "(f)"],
+            "hint": "Task 5: Error (programmer mistake) -> Fault (defect in code) -> Failure (observable malfunction). Debugging locates the fault from the failure. Task 6: Equivalence classes group inputs treated equally; single representative per valid class, single invalid class per test to avoid masking.",
+            "image_page": "testate_2_page_3.png"
+        },
+        {
+            "id": "testat_2_page_4",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 2 (Scanned Sheet)",
+            "question": "Testat 2 — Page 4 (Tasks 7 & 8):\n\nTask 7: Which statements about white-box testing criteria are correct?\nTask 8: Which testing levels are correctly described here?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) Task 7: Branch coverage requires that each branch in the control flow graph is traversed at least once.",
+                "(b) Task 7: Loop tests are useful because branch coverage typically does not adequately test loops (e.g., 0 or m iterations).",
+                "(c) Task 8: Integration test: Verifies the interaction between components and interfaces.",
+                "(d) Task 8: Unit Test: Tests the smallest independent code unit (e.g., class/method) in isolation."
+            ],
+            "correct_answer": ["(a)", "(b)", "(c)", "(d)"],
+            "hint": "Task 7: Branch coverage traverses all control flow edges; loop tests check 0/1/m iterations. Task 8: Unit test = isolated smallest code unit; Integration test = interaction between components/interfaces.",
+            "image_page": "testate_2_page_4.png"
+        },
+        {
+            "id": "testat_2_page_5",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 2 (Scanned Sheet)",
+            "question": "Testat 2 — Page 5 (Tasks 9 & 10):\n\nTask 9: Which statements about software measurement are correct?\nTask 10: How do reviews and formal inspections differ?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) Task 9: Metrics are used to manage, understand, and improve projects.",
+                "(b) Task 9: Lines of Code (LOC) is a measure that also counts blank lines and comments.",
+                "(c) Task 9: The measure NCSS (Non-commenting Source Statements) counts only actual code statements and ignores comments.",
+                "(d) Task 10: During a walkthrough, the authors guide the participants through the artifact.",
+                "(e) Task 10: Formal inspections follow a strictly defined process with designated roles (e.g., moderator, recorder).",
+                "(f) Task 10: Formal inspections typically have a higher effectiveness in finding errors compared to informal reviews."
+            ],
+            "correct_answer": ["(a)", "(b)", "(c)", "(d)", "(e)", "(f)"],
+            "hint": "Task 9: LOC counts blank lines/comments, while NCSS counts only actual code statements. Task 10: Walkthrough is author-guided; formal inspections have strict process roles (moderator, recorder) and higher defect detection effectiveness without in-meeting solutioning.",
+            "image_page": "testate_2_page_5.png"
+        }
+    ]
+    all_testates.extend(testat2_items)
         
     testat3_items = [
         {
