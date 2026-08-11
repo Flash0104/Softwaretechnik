@@ -262,94 +262,170 @@ def parse_testates():
             all_testates.extend(data)
             print(f"  Extracted {len(data)} Pingo questions.")
             
-    # Add Testat 2 scanned pages translated into 100% English multiple choice items
+    # Add Testat 2 scanned pages as 10 distinct Aufgaben translated into 100% English
     testat2_items = [
         {
-            "id": "testat_2_page_1",
+            "id": "testat_2_q1",
             "category": "Testates / Quizzes",
             "quiz_name": "Testat 2 (Scanned Sheet)",
-            "question": "Testat 2 — Page 1 (Tasks 1 & 2):\n\nTask 1: Which of the following requirements is typically classified as quality requirements (non-functional requirements)?\nTask 2: What tasks or responsibilities does the Product Owner have in Scrum?",
+            "question": "Aufgabe 1: Which of the following requirements is typically classified as quality requirements (non-functional requirements)?",
             "type": "multiple_choice",
             "options": [
-                "(a) Task 1: The delay between key press and display must be less than 0.1 seconds.",
-                "(b) Task 1: When two devices are in range, they need to exchange IDs.",
-                "(c) Task 1: The app should be available 99.999% of the time.",
-                "(d) Task 2: Definition of User Stories and Epics (together with the team)",
-                "(e) Task 2: Representation of Stakeholder Interests",
-                "(f) Task 2: Decision on items for the next release & Product Backlog Management"
+                "(a) The delay between key press and display must be less than 0.1 seconds.",
+                "(b) When two devices are in range, they need to exchange IDs.",
+                "(c) The app should be available 99.999% of the time.",
+                "(d) The development costs must not exceed 0.5 million euros.",
+                "(e) The system must automatically generate a report at the end of the month."
             ],
-            "correct_answer": ["(a)", "(c)", "(d)", "(e)", "(f)"],
-            "hint": "Task 1: Performance (<0.1s) & availability (99.999%) are non-functional. Task 2: Product Owner defines user stories, represents stakeholders, decides release items, and manages the Product Backlog.",
+            "correct_answer": ["(a)", "(c)"],
+            "hint": "Latency (<0.1s) and availability (99.999%) are non-functional (quality) requirements.",
             "image_page": "testate_2_page_1.png"
         },
         {
-            "id": "testat_2_page_2",
+            "id": "testat_2_q2",
             "category": "Testates / Quizzes",
             "quiz_name": "Testat 2 (Scanned Sheet)",
-            "question": "Testat 2 — Page 2 (Tasks 3 & 4):\n\nTask 3: What distinguishes software architecture from software design?\nTask 4: What are the characteristic features of a Service-Oriented Architecture (SOA)?",
+            "question": "Aufgabe 2: What tasks or responsibilities does the Product Owner have in Scrum (Agile Development Method)?",
             "type": "multiple_choice",
             "options": [
-                "(a) Task 3: Architecture deals with the fundamental organization and structure of the system (\"Big Picture\").",
-                "(b) Task 3: Design deals with internal details such as algorithms and data structures.",
-                "(c) Task 4: Communication often occurs through standard protocols such as HTTP, SOAP, or REST.",
-                "(d) Task 4: The coupling is loosely done through service contracts.",
-                "(e) Task 4: Applications often arise through the orchestration (linking) of existing services.",
-                "(f) Task 4: Services must necessarily all be written in the same programming language."
+                "(a) Moderation of the Daily Scrum Meetings",
+                "(b) Definition of User Stories and Epics (together with the team)",
+                "(c) Technical implementation of the tasks",
+                "(d) Representation of Stakeholder Interests",
+                "(e) Decision on items for the next release",
+                "(f) Product Backlog Management"
             ],
-            "correct_answer": ["(a)", "(b)", "(c)", "(d)", "(e)"],
-            "hint": "Task 3: Architecture is the high-level structure ('Big Picture'), Design is internal details (algorithms/data structures). Task 4: SOA features standard protocols (HTTP/REST), loose coupling via service contracts, and service orchestration.",
+            "correct_answer": ["(b)", "(d)", "(e)", "(f)"],
+            "hint": "Product Owner defines user stories/epics, represents stakeholders, decides release items, and manages the Product Backlog.",
+            "image_page": "testate_2_page_1.png"
+        },
+        {
+            "id": "testat_2_q3",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 2 (Scanned Sheet)",
+            "question": "Aufgabe 3: What distinguishes software architecture from software design?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) Architecture deals with the fundamental organization and structure of the system (\"Big Picture\").",
+                "(b) Architecture answers the question \"how?\" and design answers the question \"what?\".",
+                "(c) Design deals with internal details such as algorithms and data structures.",
+                "(d) Changes to the architecture typically incur lower costs than changes to the design."
+            ],
+            "correct_answer": ["(a)", "(c)"],
+            "hint": "Architecture is high-level structure (\"Big Picture\"), Design is detailed internal implementation (algorithms/data structures).",
             "image_page": "testate_2_page_2.png"
         },
         {
-            "id": "testat_2_page_3",
+            "id": "testat_2_q4",
             "category": "Testates / Quizzes",
             "quiz_name": "Testat 2 (Scanned Sheet)",
-            "question": "Testat 2 — Page 3 (Tasks 5 & 6):\n\nTask 5: Which statements about the \"error\" hierarchy (Error, Fault, Failure) are correct?\nTask 6: What rules typically apply to equivalence class testing?",
+            "question": "Aufgabe 4: What are the characteristic features of a Service-Oriented Architecture (SOA)?",
             "type": "multiple_choice",
             "options": [
-                "(a) Task 5: A failure is what the user or tester observes (e.g., incorrect output, crash).",
-                "(b) Task 5: An error by the programmer can lead to a fault in the code.",
-                "(c) Task 5: Debugging is the process of identifying error effects to locate the error state.",
-                "(d) Task 6: For each equivalence class, a single representative is theoretically sufficient, but boundary values are often used.",
-                "(e) Task 6: A test case for invalid equivalence classes should cover only one invalid class to avoid masking effects.",
-                "(f) Task 6: Inputs are divided into groups of similar values assumed to be treated equally by the program."
+                "(a) Communication often occurs through standard protocols such as HTTP, SOAP, or REST.",
+                "(b) Services are divided purely technically based on hardware resources.",
+                "(c) The coupling is loosely done through service contracts.",
+                "(d) Applications often arise through the orchestration (linking) of existing services.",
+                "(e) Services must necessarily all be written in the same programming language."
             ],
-            "correct_answer": ["(a)", "(b)", "(c)", "(d)", "(e)", "(f)"],
-            "hint": "Task 5: Error (programmer mistake) -> Fault (defect in code) -> Failure (observable malfunction). Debugging locates the fault from the failure. Task 6: Equivalence classes group inputs treated equally; single representative per valid class, single invalid class per test to avoid masking.",
+            "correct_answer": ["(a)", "(c)", "(d)"],
+            "hint": "SOA features standard protocols (HTTP/SOAP/REST), loose coupling via service contracts, and orchestration of services.",
+            "image_page": "testate_2_page_2.png"
+        },
+        {
+            "id": "testat_2_q5",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 2 (Scanned Sheet)",
+            "question": "Aufgabe 5: Which statements about the \"error\" hierarchy (Error, Fault, Failure) are correct?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) An error condition in the code inevitably always immediately leads to an error effect during execution.",
+                "(b) A failure is what the user or tester observes (e.g., incorrect output, crash).",
+                "(c) An error by the programmer can lead to a fault in the code.",
+                "(d) Debugging is the process of identifying error effects to locate the error state."
+            ],
+            "correct_answer": ["(b)", "(c)", "(d)"],
+            "hint": "Error (human mistake) -> Fault (defect in code) -> Failure (observable malfunction). Debugging locates faults from observed failures.",
             "image_page": "testate_2_page_3.png"
         },
         {
-            "id": "testat_2_page_4",
+            "id": "testat_2_q6",
             "category": "Testates / Quizzes",
             "quiz_name": "Testat 2 (Scanned Sheet)",
-            "question": "Testat 2 — Page 4 (Tasks 7 & 8):\n\nTask 7: Which statements about white-box testing criteria are correct?\nTask 8: Which testing levels are correctly described here?",
+            "question": "Aufgabe 6: What rules typically apply to equivalence class testing?",
             "type": "multiple_choice",
             "options": [
-                "(a) Task 7: Branch coverage requires that each branch in the control flow graph is traversed at least once.",
-                "(b) Task 7: Loop tests are useful because branch coverage typically does not adequately test loops (e.g., 0 or m iterations).",
-                "(c) Task 8: Integration test: Verifies the interaction between components and interfaces.",
-                "(d) Task 8: Unit Test: Tests the smallest independent code unit (e.g., class/method) in isolation."
+                "(a) For each equivalence class, a single representative is theoretically sufficient, but often boundary values are used since these are more error-prone.",
+                "(b) A test case for invalid equivalence classes should cover only one invalid class (e.g., to avoid masking effects).",
+                "(c) A test case should always cover as many invalid equivalence classes as possible simultaneously.",
+                "(d) Inputs are divided into groups of similar values, which are assumed to be treated equally by the program."
             ],
-            "correct_answer": ["(a)", "(b)", "(c)", "(d)"],
-            "hint": "Task 7: Branch coverage traverses all control flow edges; loop tests check 0/1/m iterations. Task 8: Unit test = isolated smallest code unit; Integration test = interaction between components/interfaces.",
+            "correct_answer": ["(a)", "(b)", "(d)"],
+            "hint": "Equivalence classes divide input spaces into groups treated equally; test 1 representative per valid class, and test only 1 invalid class per test case to prevent masking.",
+            "image_page": "testate_2_page_3.png"
+        },
+        {
+            "id": "testat_2_q7",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 2 (Scanned Sheet)",
+            "question": "Aufgabe 7: Which statements about white-box testing criteria are correct?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) 100% statement coverage is guaranteed to find all errors in the code.",
+                "(b) Branch coverage requires that each branch in the control flow graph is traversed at least once.",
+                "(c) Statement coverage ensures that all branches in the control flow graph are traversed.",
+                "(d) Loop tests are useful because branch coverage typically does not adequately test loops (e.g., 0 or m iterations)."
+            ],
+            "correct_answer": ["(b)", "(d)"],
+            "hint": "Branch coverage requires traversing all edges in the control flow graph; loop tests verify 0, 1, or multiple loop iterations.",
             "image_page": "testate_2_page_4.png"
         },
         {
-            "id": "testat_2_page_5",
+            "id": "testat_2_q8",
             "category": "Testates / Quizzes",
             "quiz_name": "Testat 2 (Scanned Sheet)",
-            "question": "Testat 2 — Page 5 (Tasks 9 & 10):\n\nTask 9: Which statements about software measurement are correct?\nTask 10: How do reviews and formal inspections differ?",
+            "question": "Aufgabe 8: Which testing levels are correctly described here?",
             "type": "multiple_choice",
             "options": [
-                "(a) Task 9: Metrics are used to manage, understand, and improve projects.",
-                "(b) Task 9: Lines of Code (LOC) is a measure that also counts blank lines and comments.",
-                "(c) Task 9: The measure NCSS (Non-commenting Source Statements) counts only actual code statements and ignores comments.",
-                "(d) Task 10: During a walkthrough, the authors guide the participants through the artifact.",
-                "(e) Task 10: Formal inspections follow a strictly defined process with designated roles (e.g., moderator, recorder).",
-                "(f) Task 10: Formal inspections typically have a higher effectiveness in finding errors compared to informal reviews."
+                "(a) System test: Checks whether the customer accepts the software (\"Does it solve my problem?\").",
+                "(b) Integration test: Verifies the interaction between components and interfaces.",
+                "(c) Acceptance Test: Tests the entire system against the specification in a production-like environment.",
+                "(d) Unit Test: Tests the smallest independent code unit (e.g., class/method) in isolation."
             ],
-            "correct_answer": ["(a)", "(b)", "(c)", "(d)", "(e)", "(f)"],
-            "hint": "Task 9: LOC counts blank lines/comments, while NCSS counts only actual code statements. Task 10: Walkthrough is author-guided; formal inspections have strict process roles (moderator, recorder) and higher defect detection effectiveness without in-meeting solutioning.",
+            "correct_answer": ["(b)", "(d)"],
+            "hint": "Integration test verifies component/interface interaction; Unit test tests the smallest code unit in isolation.",
+            "image_page": "testate_2_page_4.png"
+        },
+        {
+            "id": "testat_2_q9",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 2 (Scanned Sheet)",
+            "question": "Aufgabe 9: Which statements about software measurement are correct?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) LOC is always a better measure of complexity than NCSS.",
+                "(b) Metrics are used, among other things, to manage, understand, and improve projects.",
+                "(c) Lines of Code (LOC) is a measure that also counts blank lines and comments.",
+                "(d) The measure NCSS (Non-commenting Source Statements) counts only the actual code (statements) and ignores comments."
+            ],
+            "correct_answer": ["(b)", "(c)", "(d)"],
+            "hint": "Metrics help manage projects. LOC counts blank lines & comments; NCSS counts actual code statements only.",
+            "image_page": "testate_2_page_5.png"
+        },
+        {
+            "id": "testat_2_q10",
+            "category": "Testates / Quizzes",
+            "quiz_name": "Testat 2 (Scanned Sheet)",
+            "question": "Aufgabe 10: How do reviews and formal inspections differ?",
+            "type": "multiple_choice",
+            "options": [
+                "(a) During a formal inspection, solutions for detected errors are discussed and resolved directly in the meeting.",
+                "(b) During a walkthrough, the authors guide the participants through the artifact.",
+                "(c) Formal inspections follow a strictly defined process with designated roles (e.g., moderator, recorder).",
+                "(d) Formal inspections typically have a higher effectiveness in finding errors compared to informal reviews."
+            ],
+            "correct_answer": ["(b)", "(c)", "(d)"],
+            "hint": "Walkthrough is author-guided; formal inspections have strict process roles (moderator, recorder) and higher error detection efficiency without in-meeting solutioning.",
             "image_page": "testate_2_page_5.png"
         }
     ]
